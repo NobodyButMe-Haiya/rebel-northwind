@@ -1,0 +1,18 @@
+
+.table-fixed thead {
+    display: block;
+}
+
+.table-fixed tbody {
+    display: block;
+    overflow-y: scroll;
+    height: 200px;
+}
+
+.table-fixed td, th {
+    width: 200px;
+}
+
+.table-fixed table {
+    width: 1200px !important;
+}

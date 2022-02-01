@@ -1,0 +1,680 @@
+@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Application
+@using RebelCmsTemplate.Repository.Application
+@using RebelCmsTemplate.Util;
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<CustomerModel> customerModels = new();
+    try
+    {
+        CustomerRepository customerRepository = new(_httpContextAccessor);
+        customerModels = customerRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-file-excel"></i>
+                        <a href="#" onclick="excelRecord()">Excel</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <Button id="createButton" type="button" class="btn btn-success" onclick="createRecord()">
+                        <i class="fas fa-newspaper"></i>&nbsp;CREATE
+                    </Button>&nbsp;
+                    <Button id="updateButton" type="button" class="btn btn-warning" onclick="updateRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-edit"></i>&nbsp;UPDATE
+                    </Button>&nbsp;
+                    <Button id="deleteButton" type="button" class="btn btn-danger" onclick="deleteRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-trash"></i>&nbsp;DELETE
+                    </Button>&nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetForm()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <input type="hidden" id="customerKey" value="-" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerCode">Code</label>
+                                <input type="text" id="customerCode" class="form-control" value=" " maxlength="5" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerName">Name</label>
+                                <input type="text" id="customerName" class="form-control" value="" maxlength="40" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerContactName">Contact Name</label>
+                                <input type="text" id="customerContactName" class="form-control" value=" "
+                                    maxlength="30" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerContactTitle">Contact Title</label>
+                                <input type="text" id="customerContactTitle" class="form-control" value=" "
+                                    maxlength="30" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerAddress">Address</label>
+                                <input type="text" id="customerAddress" class="form-control" value=" " maxlength="60" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerCity">City</label>
+                                <input type="text" id="customerCity" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerRegion">Region</label>
+                                <input type="text" id="customerRegion" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerPostalCode">Postal Code</label>
+                                <input type="text" id="customerPostalCode" class="form-control" value=" "
+                                    maxlength="10" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerCountry">Country</label>
+                                <input type="text" id="customerCountry" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerPhone">Phone</label>
+                                <input type="text" id="customerPhone" class="form-control" value=" " maxlength="24" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="customerFax">Fax</label>
+                                <input type="text" id="customerFax" class="form-control" value=" " maxlength="24" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <label for="search">Search</label>
+            </div>
+            <div class="card-body">
+                <input name="search" id="search" class="form-control" placeholder="Please Enter Name  Or Other Here"
+                    maxlength="64" style="width: 350px!important;" />
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-info" onclick="searchRecord()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                    <i class="fas fa-power-off"></i> Reset
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Contact Name</th>
+                                <th>Contact Title</th>
+                                <th>Address</th>
+                                <th style="width: 230px">Process</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in customerModels)
+                            {
+                                <tr id='customer-@row.CustomerKey'>
+                                    <td>@row.CustomerCode</td>
+                                    <td>@row.CustomerName</td>
+                                    <td>@row.CustomerContactName</td>
+                                    <td>@row.CustomerContactTitle</td>
+                                    <td>@row.CustomerAddress</td>
+                                    <td style="text-align: center">
+                                        <Button type="button" class="btn btn-warning"
+                                        onclick="viewRecord(@row.CustomerKey)">
+                                            <i class="fas fa-edit"></i>&nbsp;VIEW
+                                        </Button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (customerModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="14" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var $customerKey = $("#customerKey");
+    var $customerCode = $("#customerCode");
+    var $customerName = $("#customerName");
+    var $customerContactName = $("#customerContactName");
+    var $customerContactTitle = $("#customerContactTitle");
+    var $customerAddress = $("#customerAddress");
+    var $customerCity = $("#customerCity");
+    var $customerRegion = $("#customerRegion");
+    var $customerPostalCode = $("#customerPostalCode");
+    var $customerCountry = $("#customerCountry");
+    var $customerPhone = $("#customerPhone");
+    var $customerFax = $("#customerFax");
+
+    function resetForm(attributeName) {
+        emptyForm();
+        $("#createButton").removeAttr("disabled");
+        $("#updateButton").attr("disabled", "disabled");
+        $("#deleteButton").attr("disabled", "disabled");
+    }
+    function emptyForm() {
+        $customerKey.val('');
+        $customerCode.val('');
+        $customerName.val('');
+        $customerContactName.val('');
+        $customerContactTitle.val('');
+        $customerAddress.val('');
+        $customerCity.val('');
+        $customerRegion.val('');
+        $customerPostalCode.val('');
+        $customerCountry.val('');
+        $customerPhone.val('');
+        $customerFax.val('');
+    }
+    function resetRecord() {
+        readRecord();
+        emptyForm();
+        $("#search").val("");
+
+    }
+    function emptyTemplate() {
+        return "<tr><td colspan='6'>It's lonely here</td></tr>";
+    }
+    function emptyDetailTemplate() {
+        return "<tr><td colspan='14'>It's lonely here</td></tr>";
+    }
+    function template(customerKey, customerCode, customerName, customerContactName, customerContactTitle, customerAddress) {
+        let template = "" +
+            "<tr id='customer-" + customerKey + "'>" +
+            "<td>" + customerCode + "</td>" +
+            "<td>" + customerName + "</td>" +
+            "<td>" + customerContactName + "</td>" +
+            "<td>" + customerContactTitle + "</td>" +
+            "<td>" + customerAddress + "</td>" +
+            "<td style='text-align: center'><div class='btn-group'>" +
+            "<Button type='button' class='btn btn-warning' onclick='viewRecord(" + customerKey + ")'>" +
+            "<i class='fas fa-search'></i> View" +
+            "</Button>" +
+            "</div></td>" +
+            "</tr>";
+        return template;
+    }
+    function createRecord() {
+        if ($customerName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $customerName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $customerName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/customer",
+                async: false,
+                data: {
+                    mode: 'create',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    customerCode: $customerCode.val(),
+                    customerName: $customerName.val(),
+                    customerContactName: $customerContactName.val(),
+                    customerContactTitle: $customerContactTitle.val(),
+                    customerAddress: $customerAddress.val(),
+                    customerCity: $customerCity.val(),
+                    customerRegion: $customerRegion.val(),
+                    customerPostalCode: $customerPostalCode.val(),
+                    customerCountry: $customerCountry.val(),
+                    customerPhone: $customerPhone.val(),
+                    customerFax: $customerFax.val(),
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading ..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    const lastInsertKey = data.lastInsertKey;
+                    $("#tableBody").prepend(template(lastInsertKey, $customerCode.val(), $customerName.val(), $customerContactName.val(), $customerContactTitle.val(), $customerAddress.val()));
+                    $("#customerKey").val(lastInsertKey);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@SharedUtil.RecordCreated',
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    });
+                } else if (status === false) {
+                    if (typeof (code) === 'string') {
+                        callBackError();
+                    } else if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function readRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/customer",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "read",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            },
+            beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            row = data.data[i];
+                            templateStringBuilder += template(row.customerKey, row.customerCode, row.customerName, row.customerContactName, row.customerContactTitle, row.customerAddress);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (typeof (code) === 'string') {
+                    callBackError();
+                } else if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function searchRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/customer",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "search",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                search: $("#search").val()
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            row = data.data[i];
+                            templateStringBuilder += template(row.customerKey, row.customerCode, row.customerName, row.customerContactName, row.customerContactTitle, row.customerAddress);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    }else{
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (typeof (code) === 'string') {
+                    callBackError();
+                } else if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/customer");
+    }
+    function viewRecord(customerKey) {
+        $.ajax({
+            type: "post",
+            url: "api/application/customer",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "single",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                customerKey: customerKey
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.dataSingle === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    $customerKey.val(data.dataSingle.customerKey);
+                    $customerCode.val(data.dataSingle.customerCode);
+                    $customerName.val(data.dataSingle.customerName);
+                    $customerContactName.val(data.dataSingle.customerContactName);
+                    $customerContactTitle.val(data.dataSingle.customerContactTitle);
+                    $customerAddress.val(data.dataSingle.customerAddress);
+                    $customerCity.val(data.dataSingle.customerCity);
+                    $customerRegion.val(data.dataSingle.customerRegion);
+                    $customerPostalCode.val(data.dataSingle.customerPostalCode);
+                    $customerCountry.val(data.dataSingle.customerCountry);
+                    $customerPhone.val(data.dataSingle.customerPhone);
+                    $customerFax.val(data.dataSingle.customerFax);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }
+            } else if (status === false) {
+                if (typeof (code) === 'string') {
+                    callBackError();
+                } else if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/customer");
+    }
+    function updateRecord() {
+        if ($customerName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $customerName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $customerName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/customer",
+                async: false,
+                data: {
+                    mode: 'update',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    customerKey: $customerKey.val(),
+                    customerCode: $customerCode.val(),
+                    customerName: $customerName.val(),
+                    customerContactName: $customerContactName.val(),
+                    customerContactTitle: $customerContactTitle.val(),
+                    customerAddress: $customerAddress.val(),
+                    customerCity: $customerCity.val(),
+                    customerRegion: $customerRegion.val(),
+                    customerPostalCode: $customerPostalCode.val(),
+                    customerCountry: $customerCountry.val(),
+                    customerPhone: $customerPhone.val(),
+                    customerFax: $customerFax.val(),
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire("System", "@SharedUtil.RecordUpdated", 'success')
+                } else if (status === false) {
+                    if (typeof (code) === 'string') {
+                        callBackError();
+                    } else if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function deleteRecord() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: "api/application/customer",
+                    async: false,
+                    data: {
+                        mode: 'delete',
+                        leafCheckKey: @navigationModel.LeafCheckKey,
+                        customerKey: $("#customerKey").val()
+                    },
+                    statusCode: {
+                        500: function () {
+                            Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                            accessDenied();
+                        }
+                    },
+                    beforeSend: function () {
+                        console.log("loading..");
+                    }
+                }).done(function (data) {
+                    if (data === void 0) { location.href = "/"; }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        $("#createButton").removeAttr("disabled");
+                        $("#updateButton").attr("disabled", "disabled");
+                        $("#deleteButton").attr("disabled", "disabled");
+                        emptyForm();
+
+                        readRecord();
+                        Swal.fire("System", "@SharedUtil.RecordDeleted", "success");
+                    } else if (status === false) {
+                        if (typeof (code) === 'string') {
+                            callBackError();
+                        } else if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else {
+                            location.href = "/";
+                        }
+                    } else {
+                        location.href = "/";
+                    }
+                }).fail(function (xhr) {
+                    console.log(xhr.status);
+                    Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+                }).always(function () {
+                    console.log("always:complete");
+                });
+            } else if (result.dismiss === swal.DismissReason.cancel) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cancelled',
+                    text: 'Be careful before delete record'
+                })
+            }
+        });
+    }
+</script>

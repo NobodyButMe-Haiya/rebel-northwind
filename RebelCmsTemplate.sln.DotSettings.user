@@ -1,0 +1,6 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=0D6E5960_002D46B7_002D41B8_002D9D5E_002D4E041993E9B1_002Fd_003ARepository_002Fd_003AMenu_002Ff_003AFolderAccessRepository_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=1a887a61_002D1078_002D43f4_002Db960_002Daba3a8e0d7ee_0023RebelCmsConsoleApplication/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=officedocument/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=openxmlformats/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=spreadsheetml/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

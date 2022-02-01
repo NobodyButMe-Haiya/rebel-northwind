@@ -1,0 +1,768 @@
+@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Application
+@using RebelCmsTemplate.Repository.Application
+@using RebelCmsTemplate.Util;
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<EmployeeModel> employeeModels = new();
+    try
+    {
+        EmployeeRepository employeeRepository = new(_httpContextAccessor);
+        employeeModels = employeeRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-file-excel"></i>
+                        <a href="#" onclick="excelRecord()">Excel</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <Button id="createButton" type="button" class="btn btn-success" onclick="createRecord()">
+                        <i class="fas fa-newspaper"></i>&nbsp;CREATE
+                    </Button>&nbsp;
+                    <Button id="updateButton" type="button" class="btn btn-warning" onclick="updateRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-edit"></i>&nbsp;UPDATE
+                    </Button>&nbsp;
+                    <Button id="deleteButton" type="button" class="btn btn-danger" onclick="deleteRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-trash"></i>&nbsp;DELETE
+                    </Button>&nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetForm()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <input type="hidden" id="employeeKey" value="0" />
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeFirstName">First Name</label>
+                                <input type="text" id="employeeFirstName" class="form-control" value=""
+                                    maxlength="10" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeLastName">Last Name</label>
+                                <input type="text" id="employeeLastName" class="form-control" value="" maxlength="20" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeTitle">Title</label>
+                                <input type="text" id="employeeTitle" class="form-control" value=" " maxlength="30" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeTitleOfCourtesy">Title Of Courtesy</label>
+                                <input type="text" id="employeeTitleOfCourtesy" class="form-control" value=" "
+                                    maxlength="25" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeBirthDate">Birth Date</label>
+                                <input type="date" id="employeeBirthDate" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeHireDate">Hire Date</label>
+                                <input type="date" id="employeeHireDate" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeAddress">Address</label>
+                                <input type="text" id="employeeAddress" class="form-control" value=" " maxlength="60" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeCity">City</label>
+                                <input type="text" id="employeeCity" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeRegion">Region</label>
+                                <input type="text" id="employeeRegion" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeePostalCode">Postal Code</label>
+                                <input type="text" id="employeePostalCode" class="form-control" value=" "
+                                    maxlength="10" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeCountry">Country</label>
+                                <input type="text" id="employeeCountry" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeHomePhone">Home Phone</label>
+                                <input type="text" id="employeeHomePhone" class="form-control" value=" "
+                                    maxlength="24" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeExtension">Extension</label>
+                                <input type="text" id="employeeExtension" class="form-control" value=" "
+                                    maxlength="4" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeePhoto">Photo</label>
+                                <input type="file" id="employeePhoto" class="form-control"
+                                    onchange="showPreview(event,'employeePhotoImage');" />
+                                <img src="data:image/png;base64,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"
+                                    id="employeePhotoImage" class="img-fluid" accept="image/png"
+                                    style="width:50px;height:50px" alt="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeNotes">Notes</label>
+                                <input type="text" id="employeeNotes" class="form-control" value=" " maxlength="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeePhotoPath">Photo Path</label>
+                                <input type="text" id="employeePhotoPath" class="form-control" value=" "
+                                    maxlength="255" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="employeeSalary">Salary</label>
+                                <input type="number" step="0.01" id="employeeSalary" class="form-control" value="0"
+                                    maxlength="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <label for="search">Search</label>
+            </div>
+            <div class="card-body">
+                <input name="search" id="search" class="form-control" placeholder="Please Enter Name  Or Other Here"
+                    maxlength="64" style="width: 350px!important;" />
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-info" onclick="searchRecord()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                    <i class="fas fa-power-off"></i> Reset
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Title</th>
+                                <th>Title Of Courtesy</th>
+                                <th>Birth Date</th>
+                                <th style="width: 230px">Process</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in employeeModels)
+                            {
+                                <tr id='employee-@row.EmployeeKey'>
+                                    <td>@row.EmployeeFirstName</td>
+                                    <td>@row.EmployeeLastName</td>
+
+                                    <td>@row.EmployeeTitle</td>
+                                    <td>@row.EmployeeTitleOfCourtesy</td>
+                                    <td>@row.EmployeeBirthDate</td>
+                                    <td style="text-align: center">
+                                        <Button type="button" class="btn btn-warning"
+                                        onclick="viewRecord(@row.EmployeeKey)">
+                                            <i class="fas fa-edit"></i>&nbsp;VIEW
+                                        </Button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (employeeModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="20" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var $employeeKey = $("#employeeKey");
+    var $employeeLastName = $("#employeeLastName");
+    var $employeeFirstName = $("#employeeFirstName");
+    var $employeeTitle = $("#employeeTitle");
+    var $employeeTitleOfCourtesy = $("#employeeTitleOfCourtesy");
+    var $employeeBirthDate = $("#employeeBirthDate");
+    var $employeeHireDate = $("#employeeHireDate");
+    var $employeeAddress = $("#employeeAddress");
+    var $employeeCity = $("#employeeCity");
+    var $employeeRegion = $("#employeeRegion");
+    var $employeePostalCode = $("#employeePostalCode");
+    var $employeeCountry = $("#employeeCountry");
+    var $employeeHomePhone = $("#employeeHomePhone");
+    var $employeeExtension = $("#employeeExtension");
+    var $employeePhoto = $("#employeePhoto");
+    var $employeePhotoImage = $("#employeePhotoImage");
+    var $employeeNotes = $("#employeeNotes");
+    var $employeePhotoPath = $("#employeePhotoPath");
+    var $employeeSalary = $("#employeeSalary");
+    var image = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA3jSURBVHic5Zt7jNzVdcc/997f/Oa9j9ldYxPHsH5gTIMacEsxL4UmoTz8WBPhtlRpKSpNo4Y2qpRWVR4UNa2EorYkf1RpSgKolCBaYHkaCKUUaA0iVFUhBIyJMfi93l3v7rznd+/pHzP7mJ3fb2a9LLFRv9JofnPvued3zrnnnnvuY5SI8P8Z+mQLcLLhdSI4+uDm1UbJVaLUhcAmICPCfynUiyj5j/6hx1798MWMxtijW39BrFwuuEsQdQkKC7JL0LuUDp7s37rzrXbtVbshcOyhazaj1A+BTBSNwN1Km5v7tz48Fclo145kqVLZJjU+F8+oHqPVANDX+ACMNj4HEHYBLyKxl9l0fymK5bt3XZ7I9mZuE5GbARWuHWUcv9u//bH7ovhEGmBkeMsfK+RvWdgw2euc+/yya5/4z7mFU09u24qSr9qa/BIKne01GBMuawgKwHfx9N+w8YFDTbI9cvV5yul7gHMWwEcE+cbA0OPfDKsMNcDo8NYhwT2EKOLjA3jlNLrmU+0ap9o1hpggjJcVkc0D2x9/svDU0GeqNXu3DeR0gGRak+4yC5A1TEIqwA8I9G1c9MC+ow9vvkgLzwGxFlJn8Cdz+JM5nKlhk0UqPUcR7RClbhzY9uidCzLAseHNLyinL8m+uwF/qrepTpSjuGIfpYEDLe2MUaOer0YqJXf2dFkyo0lnF6l8MwLn5P6JUXuZDWTl/MrE2HLSB1ajXLPD1tKTTA6+gZjgjf6hxz8BzQq3GODY8OaNwI+z+9YTPz4QKU0ld5T8yj2IcgAYoxAB52b5JVKaTPeSKD8D52ByLCCoNd4jiszB1SSOrYhsU82OM7n6Jwju6oGhJ3bOrQsb37+vnMGf6AupmkV8bBmZ99cBYDyFtdKkvJ9YeuUBtIbuPo9YvB5LOikP4E/1ogMfhf5CC78WamG5P5lDSefYFx8fIC5JbNDsRdoosj1Lr/w0lILuXo+UynRUfhqNDm0hbtVSkdI1f0FMK2v3UFGtM1W6S6MWHOwXCQWp0yqw6siCyHUthkCqpTyMr2jbkWH14+8xlT7cUu7HFfHEzynBVMA578LA8Y6koh1qIQZwoDoZQGJV8n3vt8qj+FDGfUds2AfatSVp6NTilyFdJc8F6eikDqC47k1cyPTpJzR64YnO0iFVhtWH2pI0dHp2fnmLAYyTR6xfJkjlQxnZ7glKscnQukTyJK6tBg9CshJaZeNlgmQeRIbn17VInLt258vAkUr3sVBmhcHwtYUxamZqOikwrj4UQlDpHgEo5CeKz8yvCxsCgjBcyR3BebWmmurK96lKNfQl8dQpsLJeNt4SEMUElPsPA/LYmTf8e3l+k1Cpg8B93cVqh/Mr9zSVFwf2R747kTyJvT8XZzUH58Lpe3GxyrhWsa+EkYcaYPl1T4wo+Hy1e1QqvUcBqAzuJXDhs4MfVycn+IUhW4QVowBUu8Yo547gkJty24Zbpy3aLHX7tj32DMi38h/fQyV3mGJPdJRNnAruPxdr91PtOcbUGW8BfG/Z0OMPRJG2lbz/6JGvCXJHec07WBc+z2pdn/5OKaTLVDfsRoy9r1xLfbkdadsdIYDjw9t7nA5GnQtfHHygtf6HCWGUcs9KPnVnS+Cbi45dpxLBc1HKwyno/tNQ9JEcv60TWVvpp57e9ue1svxiVH08qTHeKRL8QqFu5uXtV7SliBoCkz/asi4o8qaTiN5X0Dvgncge38nCIZQ6lwseHA2rjPQAV+W5SOWBZEp/FJQHWIHI96IqQxWcenrrHUGtvqEZBqUgmTkFA180ruWl7TeEVbQMgfy/DZ1TKQSvi4vYawdSWUMqc4oGv2iMY9XZXPTg0bmFLVrYin2infJK16e+jyB6MXL7/MImD8g/ve1r5aL9y3Zc2vX+q28J9z4jjBR6iRnLNReUufbS0DOEBWPJeTp1FZsefHL6Z5MmQc39abu2StWDXxh+/KZwyw+EDRdu49v/eDufvuYahl/K8K/PRxw/6jiSWoPNXYpLr18anguBlm80/Zx+KDwzdH1Qk2y7tom0RkV4/z//qO5J1+4YojfXw1VbrgTgiVcSrcQmTbDyBoIV1+F6L8Yu347t+9QH47lwbOKlz50//WNGHVuzf9GpZbvNzr2NtdKD9w8zPnacnY/WvSxwrb1lezchseYTJ9d9AZj0onmeEJR8afrRA5h8akeuWpV17dpoDV4set4PGivl4fsf5vlnX2jzcg+XPTekXCN+P6pUOHGeJwz3m+za8Ydsur+kATxd2UGHiyKxePvI781JC4JgNkjZoDlgufRa0PFwJqo5t1gozxOHSqDs+dAYAta6qzo18Tvs96352OxzsVAkCAKCIKAvU2yik0z0ibZ4XYviuTjIr0DDAM7xyU7knRY9139mtj6oBUwen2Ty+CS/c8WcXSSdwKXWRIs0Ly4siOdioeQCmPYAJ8s60esOuc/G9Ypbb1SsXwXJOKxfBbfeqNi4flYJ2/PLLW7ehFjuhHkuHmoDNIKggo6J/UL2/DaujxbOZTbgei9u296lVqPjy1GV2SO3djw/EJSkoeEBYtt1S+fe7wRJrMQu27wAoQz2tKHoILmUkPo5oQcgSlSnWeCEoQwutQbJbMCl17V3/blyxXoITtuCd+RRcOEnPUuEWQN0wsx+aEMpYj2I9kH5DcVUPU9G1VdLyselBhfdk5JaS23VTZjxXajC26hgzlGc0kgsh8T6wM/Vn00aZYsQTKFqx9CF3eBq0S+ow0LDAFpTtI50FKX2s9j+y3DZc0B/oDR04TAZbP9nof+zYPMoVwMc4vWEetNcB7auis6/gRl7AWyhhbaBPTBjAHXUIoOhcmRXkhjcgsvmiFwIfNgwGeRE9l+0j+v6JC69Fu/wMKoceqK1G6ZnAa1+RogBTLKfxOptiHOItSjvgxtAHc1j/vsAeHFUoe6mko4hvQnc2l6kewkDoMkQnH493sF7UOWDzXXCW9AwgGd4tgqfnq5zKoHVOVzfZVRGRnHWITKKc4INAsRaUArVuAcz/Y1SaGPInXEGfjI574WC98jrqAOjkM5CatZpVdWixsvonx3Hre3Fnndaiy7VUomxfftw1s7cdJO53yIoYzCeh/a8pm8vfjnp0jCemjMctLwyY4Bj7uKHY7F3vxmonApMDqcaN0nG2l+UiEJQqbQYwOz8KWp/48g9ER1H9J5xJOHhNjTfUgsqFarFDimwtdhq+On1MS4mpkskvHESZnxqNFj37iCg9jz19zuBK+cSKwnwkz5eIoMxGm0M2mhi2R5MzEeb+oCc2U0SqQchEZTWmFjLJU5i//ACTC9icv3gtdJMQ7I+wZWrW/Wr1RDn6t4HMM8DnbW4IMAGQdN3tVSimp9qusbXwJMecAQ46JE/FKvu22jcGMZNkVr3BZDmDMzEPHR8kWN07rWxcgky0QaIQphh50J7HkTJ56q4PXdQtj0cLw8+G0j8bOCIt+aKL94wTXP88S0TgZMuAEVrbuSCKjqexFlLeWqKytQUQaVCUK1iazXimQwDa8IXO27taeifNqJxsVD3gEQygrY3tBxg5J13qOTzmFgMz/fx4nHi2SyJbHbGM0OhDHEzSdxMvth96bdn4l1TIhRL6D8KavauegPVdK22Vq5QKU1Q2X+IarE0/8ptR9hfXQc1i37ncL3t5HGoViDTNZtrG4U9p7+tAaDh6tZSK9fPPadGRkAp4qkUia4uEl1dxFOpZq9zZQBB6z9pssv8c4GJnVv31iruzNS5NwEepXyRyZEx3JzjcaUU8UyGRDZLLJnE+D6e77fvgem2I3nMs7tRxybqBVpDJotbvwL3iX4k1XloOGvrXletUiuV6t6YzzNXF20MuVWrSPXWjanK+/H233MvFz70W3N5taTCMZ8dQY2XpTqhlN9Xt7ZzeH6MeCpBPJkk2ZvDJFruHC4IMpAh+PXzUSN59N6xukKDOWQg8j8ZLdDG1GeZZJJkdzddy5cjzlHJ5ylNTlKemqJWKmFrs+mwzv8kj9J/Np9X6OFo4amtXw6SZ/1d7GOX14V2gtJz3EkpYtkcH/592MVDnENNDy1XJXbgrqs57/s759OFpnbpX3vkdlXa/UOoT1tNygOIYMuROfYMCofeJ39wHy7ouDBpgQtq5A/uo3Ao9GpPR6g5a3hd3H1fmPLQ4YZI4ZVb3lK5C86KqjeJNDoeHskBCgffIygXUcaQyA3gJVKgNbZUJCgVCBo7wF4yjZdMY5IpcI6gXKQ8NoJYi5dIkT59VWeNI6AnXtlp1nzp6qj6jldkSm/etVdiA2dG1ZtkGu2HG0HEUTp6iFphcRllLJ0luWwFalGLMEFP/M/dZs0f3NCOqqMBAEqv3f6QpM8aipr6TDKD9qPT2+rUBEGpiK0UwQleKo2XTGEabWy1TFAqEhQLoBUmnsJLpvCz3R1lC1XKTjldfPvrevCLf92RdqH/HC299q3rSK69V5QfuonSyQg/NxTf2eOKb18TP/uW3QshX7ABZvi/9p27VHr1b4u0TgE6Fsck0ydl30BVDuelNvLV2Jm/950TarfY/w6X3/zuneL1/YbodKJpaCiFSaQi48KSwlVEld77X1U+9Fdm/Vf+ZTEsFm2AaUy9emu/SQz8E17XRnSqF+N7oOurwrgv2igRZ0VJYMHWlAtqIraqCCoirgSglE4KXlwp44v2YmBiojyjtFGgkcYfHVSQL0kwcVC7wusqKD6v0d9n7c3hd/d/Xgb4qOMjeddlKfF/V3bN0xhhz4AAAAAASUVORK5CYII=";
+    function resetForm() {
+        emptyForm();
+        $("#createButton").removeAttr("disabled");
+        $("#updateButton").attr("disabled", "disabled");
+        $("#deleteButton").attr("disabled", "disabled");
+    }
+    function emptyForm() {
+        $employeePhotoImage.attr("src", 'data:image/png;base64,' + image);
+        $employeeKey.val('');
+        $employeeLastName.val('');
+        $employeeFirstName.val('');
+        $employeeTitle.val('');
+        $employeeTitleOfCourtesy.val('');
+        $employeeBirthDate.val('');
+        $employeeHireDate.val('');
+        $employeeAddress.val('');
+        $employeeCity.val('');
+        $employeeRegion.val('');
+        $employeePostalCode.val('');
+        $employeeCountry.val('');
+        $employeeHomePhone.val('');
+        $employeeExtension.val('');
+        $employeePhoto.val('');
+        $employeeNotes.val('');
+        $employeePhotoPath.val('');
+        $employeeSalary.val('');
+    }
+    function resetRecord() {
+
+        readRecord();
+        $("#search").val("");
+        emptyForm();
+
+    }
+    function emptyTemplate() {
+        return "<tr><td colspan='20'>It's lonely here</td></tr>";
+    }
+    function template(employeeKey, employeeLastName, employeeFirstName, employeeTitle, employeeTitleOfCourtesy, employeeBirthDate) {
+
+        return "" +
+            "<tr id='employee-" + employeeKey + "'>" +
+            "<td>" + employeeFirstName + "</td>" +
+            "<td>" + employeeLastName + "</td>" +
+            "<td>" + employeeTitle + "</td>" +
+            "<td>" + employeeTitleOfCourtesy + "</td>" +
+            "<td>" + employeeBirthDate + "</td>" +
+            "<td style='text-align: center'><div class='btn-group'>" +
+            "<Button type='button' class='btn btn-warning' onclick='viewRecord(" + employeeKey + ")'>" +
+            "<i class='fas fa-search'></i> View" +
+            "</Button>" +
+            "</div></td>" +
+            "</tr>";
+    }
+    function createRecord() {
+        if ($employeeFirstName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $employeeFirstName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $employeeFirstName.removeClass("is-invalid");
+            const formData = new FormData();
+            formData.append("mode", "create");
+            formData.append("leafCheckKey", @navigationModel.LeafCheckKey);
+            formData.append('employeeLastName', $employeeLastName.val());
+            formData.append('employeeFirstName', $employeeFirstName.val());
+            formData.append('employeeTitle', $employeeTitle.val());
+            formData.append('employeeTitleOfCourtesy', $employeeTitleOfCourtesy.val());
+            formData.append('employeeBirthDate', $employeeBirthDate.val());
+            formData.append('employeeHireDate', $employeeHireDate.val());
+            formData.append('employeeAddress', $employeeAddress.val());
+            formData.append('employeeCity', $employeeCity.val());
+            formData.append('employeeRegion', $employeeRegion.val());
+            formData.append('employeePostalCode', $employeePostalCode.val());
+            formData.append('employeeCountry', $employeeCountry.val());
+            formData.append('employeeHomePhone', $employeeHomePhone.val());
+            formData.append('employeeExtension', $employeeExtension.val());
+            let filesEmployeePhoto = $('#employeePhoto')[0].files;
+            if (filesEmployeePhoto.length > 0) {
+                formData.append('employeePhoto', filesEmployeePhoto[0]);
+            }
+            formData.append('employeeNotes', $employeeNotes.val());
+            formData.append('employeePhotoPath', $employeePhotoPath.val());
+            formData.append('employeeSalary', $employeeSalary.val());
+            $.ajax({
+                type: 'POST',
+                url: "api/application/employee",
+                async: false,
+                contentType: false,
+                processData: false,
+                data: formData,
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading ..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    const lastInsertKey = data.lastInsertKey;
+                    $("#tableBody").prepend(template(lastInsertKey, $employeeLastName.val(), $employeeFirstName.val(), $employeeTitle.val(), $employeeTitleOfCourtesy.val(), $employeeBirthDate.val()));
+                    $("#employeeKey").val(lastInsertKey);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@SharedUtil.RecordCreated',
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    });
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function readRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/employee",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "read",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            },
+            beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.employeeKey, row.employeeLastName, row.employeeFirstName, row.employeeTitle, row.employeeTitleOfCourtesy, row.employeeBirthDate);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function searchRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/employee",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "search",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                search: $("#search").val()
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.employeeKey, row.employeeLastName, row.employeeFirstName, row.employeeTitle, row.employeeTitleOfCourtesy, row.employeeBirthDate);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    }else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function viewRecord(employeeKey) {
+        $.ajax({
+            type: "post",
+            url: "api/application/employee",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "single",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                employeeKey: employeeKey
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            },
+            beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.dataSingle === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    $employeeKey.val(data.dataSingle.employeeKey);
+                    $employeeLastName.val(data.dataSingle.employeeLastName);
+                    $employeeFirstName.val(data.dataSingle.employeeFirstName);
+                    $employeeTitle.val(data.dataSingle.employeeTitle);
+                    $employeeTitleOfCourtesy.val(data.dataSingle.employeeTitleOfCourtesy);
+                    $employeeBirthDate.val(data.dataSingle.employeeBirthDate);
+                    $employeeHireDate.val(data.dataSingle.employeeHireDate);
+                    $employeeAddress.val(data.dataSingle.employeeAddress);
+                    $employeeCity.val(data.dataSingle.employeeCity);
+                    $employeeRegion.val(data.dataSingle.employeeRegion);
+                    $employeePostalCode.val(data.dataSingle.employeePostalCode);
+                    $employeeCountry.val(data.dataSingle.employeeCountry);
+                    $employeeHomePhone.val(data.dataSingle.employeeHomePhone);
+                    $employeeExtension.val(data.dataSingle.employeeExtension);
+                    $employeePhotoImage.attr("src", data.dataSingle.employeePhotoBase64String);
+                    $employeeNotes.val(data.dataSingle.employeeNotes);
+                    $employeePhotoPath.val(data.dataSingle.employeePhotoPath);
+                    $employeeSalary.val(data.dataSingle.employeeSalary);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/employee");
+    }
+    function updateRecord() {
+        if ($employeeFirstName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $employeeFirstName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $employeeFirstName.removeClass("is-invalid");
+            let formData = new FormData();
+            formData.append("mode", "update");
+            formData.append("leafCheckKey", @navigationModel.LeafCheckKey);
+            formData.append('employeeKey', $employeeKey.val());
+            formData.append('employeeLastName', $employeeLastName.val());
+            formData.append('employeeFirstName', $employeeFirstName.val());
+            formData.append('employeeTitle', $employeeTitle.val());
+            formData.append('employeeTitleOfCourtesy', $employeeTitleOfCourtesy.val());
+            formData.append('employeeBirthDate', $employeeBirthDate.val());
+            formData.append('employeeHireDate', $employeeHireDate.val());
+            formData.append('employeeAddress', $employeeAddress.val());
+            formData.append('employeeCity', $employeeCity.val());
+            formData.append('employeeRegion', $employeeRegion.val());
+            formData.append('employeePostalCode', $employeePostalCode.val());
+            formData.append('employeeCountry', $employeeCountry.val());
+            formData.append('employeeHomePhone', $employeeHomePhone.val());
+            formData.append('employeeExtension', $employeeExtension.val());
+            let filesEmployeePhoto = $('#employeePhoto')[0].files;
+            if (filesEmployeePhoto.length > 0) {
+                formData.append('employeePhoto', filesEmployeePhoto[0]);
+            }
+            formData.append('employeeNotes', $employeeNotes.val());
+            formData.append('employeePhotoPath', $employeePhotoPath.val());
+            formData.append('employeeSalary', $employeeSalary.val());
+            $.ajax({
+                type: 'POST',
+                url: "api/application/employee",
+                async: false,
+                contentType: false,
+                processData: false,
+                data: formData,
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    }
+                }, beforeSend() {
+                    console.log("loading..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire("System", "@SharedUtil.RecordUpdated", 'success')
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function deleteRecord() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: "api/application/employee",
+                    async: false,
+                    data: {
+                        mode: 'delete',
+                        leafCheckKey: @navigationModel.LeafCheckKey,
+                        employeeKey: $("#employeeKey").val()
+                    },
+                    statusCode: {
+                        500: function () {
+                            Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                            accessDenied();
+                        }
+                    },
+                    beforeSend: function () {
+                        console.log("loading..");
+                    }
+                }).done(function (data) {
+                    if (data === void 0) { location.href = "/"; }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        $("#createButton").removeAttr("disabled");
+                        $("#updateButton").attr("disabled", "disabled");
+                        $("#deleteButton").attr("disabled", "disabled");
+                        emptyForm();
+
+                        readRecord();
+                        Swal.fire("System", "@SharedUtil.RecordDeleted", "success");
+                    } else if (status === false) {
+                        if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else if (typeof (code) === 'string') {
+                            callBackError();
+                        } else {
+                            location.href = "/";
+                        }
+                    } else {
+                        location.href = "/";
+                    }
+                }).fail(function (xhr) {
+                    console.log(xhr.status);
+                    Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+                }).always(function () {
+                    console.log("always:complete");
+                });
+            } else if (result.dismiss === swal.DismissReason.cancel) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cancelled',
+                    text: 'Be careful before delete record'
+                })
+            }
+        });
+    }
+</script>

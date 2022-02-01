@@ -1,0 +1,329 @@
+﻿@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Menu
+@using RebelCmsTemplate.Models.Administrator
+@using RebelCmsTemplate.Repository.Menu
+@using RebelCmsTemplate.Repository.Administrator
+@using RebelCmsTemplate.Util
+@using RebelCmsTemplate.Enum
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<FolderModel> folderModels = new();
+    List<RoleModel> roleModels = new();
+    List<FolderAccessModel> folderAccessModels = new();
+    try
+    {
+        FolderRepository folderRepository = new(_httpContextAccessor);
+        folderModels = folderRepository.Read();
+        FolderAccessRepository folderAccessRepository = new(_httpContextAccessor);
+        folderAccessModels = folderAccessRepository.Read();
+        RoleRepository roleRepository = new(_httpContextAccessor);
+        roleModels = roleRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i>
+                            @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i>
+                        @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2 col-sm-2 col-md-2" for="folderKey">
+                                        Folder
+                                    </label>
+                                    <div class="col-xs-10 col-sm-10 col-md-10">
+                                        <select name="folderKey" id="folderKey" class=" form-control"
+                                            style="width: 400px" onChange="readRecord();">
+                                            <option value="">Please Choose</option>
+                                            @foreach (var rowFolder in folderModels)
+                                            {
+                                                <option value="@rowFolder.FolderKey">@rowFolder.FolderName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2 col-sm-2 col-md-2" for="roleKey">
+                                        Role
+                                    </label>
+                                    <div class="col-xs-10 col-sm-10 col-md-10">
+                                        <select name="roleKey" id="roleKey" class=" form-control" style="width: 400px"
+                                            onChange="readRecord();">
+                                            <option value="">Please Choose</option>
+                                            @foreach (var rowRole in roleModels)
+                                            {
+                                                <option value="@rowRole.RoleKey">@rowRole.RoleName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <button type="button" name="clearSearchString" id="clearSearchString" value="Clear"
+                                    class="btn btn-info" onClick="clearRecord();">
+                                    Clear
+                                </button>
+                                &nbsp;
+                                <button type="button" name="showGrid" id="showGrid" value="Show Grid"
+                                    class="btn btn-danger" onClick="readRecord();">
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="float-right">
+                    <button class="delete btn btn-warning" type="button" onClick="updateRecord();">
+                        <i class="fas fa-lock"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Folder</th>
+                                <th style="text-align: center;width: 50px;vertical-align: middle">
+                                    <label>
+                                        <input class="form-check-input" type="checkbox" name="check_all" id="check_all"
+                                            alt="Check Record"
+                                            onChange="toggleRangeChecked(this.checked,'AccessValue');">
+                                    </label>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in folderAccessModels)
+                            {
+                                var checkedValue = row.FolderAccessValue == 1 ? "checked" : "";
+                                <tr>
+                                    <td class="tdNormalAlign">@row.RoleName</td>
+                                    <td class="tdNormalAlign">@row.FolderName</td>
+                                    <td class="tdCodeAlign">
+                                        <input type="hidden" name="AccessKey" value="@row.FolderAccessKey">
+                                        <input title="value" @checkedValue class="form-check-input" type="checkbox"
+                                        name="AccessValue" value="@row.FolderAccessValue">
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (folderAccessModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var $folderKey = $("#folderKey");
+    var $roleKey = $("#roleKey");
+    function emptyTemplate() {
+        return "" +
+            "<tr>" +
+            "<td colspan=\"4\">It's lonely here</td>" +
+            "</tr>";
+    }
+    function template(folderAccessKey, folderName, roleName, folderAccessValue) {
+        let checkedFolderAccessValue = (folderAccessValue === 1) ? "checked" : "";
+        return "<tr>" +
+            "<td class='tdNormalAlign'>" + roleName + "</td>" +
+            "<td class='tdNormalAlign'>" + folderName + "</td>" +
+            "<td class='tdCodeAlign'>" +
+            "<input type='hidden' name='AccessKey' value='" + folderAccessKey + "'>" +
+            "<input " + checkedFolderAccessValue + " class='form-check-input' type='checkbox' name='AccessValue' value='" + folderAccessValue + "'>" +
+            "</td>" +
+            "</tr>";
+    }
+    function clearRecord() {
+        $folderKey.val("");
+        $roleKey.val("");
+        readRecord();
+    }
+    function readRecord() {
+        let row = { folderAccessKey: "", folderName: "", roleName: "", folderAccessValue: "" };
+        let data = {};
+        data.mode = "search";
+        if (parseInt($folderKey.val()) > 0) {
+            data.folderKey = $folderKey.val();
+        }
+        if (parseInt($roleKey.val()) > 0) {
+            data.roleKey = $roleKey.val();
+        }
+        data.leafCheckKey = @navigationModel.LeafCheckKey;
+
+        $.ajax({
+            type: 'POST',
+            url: "api/menu/folderAccess",
+            async: false,
+            data: data,
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                }
+            },
+            beforeSend: function () {
+                console.log("loading..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            row = data.data[i];
+                            templateStringBuilder += template(row.folderAccessKey, row.folderName, row.roleName, row.folderAccessValue);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    }else{
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status)
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+
+    function updateRecord() {
+        let folderAccessKeyArray = [];
+        let folderAccessValueArray = [];
+        $('input[name="AccessKey"]').each(function () {
+            folderAccessKeyArray.push($(this).val());
+        });
+        $('input[name="AccessValue"]').each(function () {
+            folderAccessValueArray.push($(this).is(':checked') ? 1 : 0);
+        });
+        $.ajax({
+            type: 'POST',
+            url: "api/menu/folderAccess",
+            async: false,
+            data: {
+                mode: 'update',
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                keyArray: folderAccessKeyArray,
+                valueArray: folderAccessValueArray
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            },
+            beforeSend: function () {
+                console.log("loading");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                Swal.fire("System", " @SharedUtil.RecordUpdated", 'success')
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status)
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+</script>

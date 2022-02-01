@@ -1,0 +1,776 @@
+@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Application
+@using RebelCmsTemplate.Repository.Application
+@using RebelCmsTemplate.Util;
+@using RebelCmsTemplate.Models.Setting
+@using RebelCmsTemplate.Repository.Setting
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<ProductModel> productModels = new();
+    List<SupplierModel> supplierModels = new();
+    List<ProductCategoryModel> productCategoryModels = new();
+    List<ProductTypeModel> productTypeModels = new();
+    try
+    {
+        SupplierRepository supplierRepository = new(_httpContextAccessor);
+        supplierModels = supplierRepository.Read();
+        ProductCategoryRepository productCategoryRepository = new(_httpContextAccessor);
+        productCategoryModels = productCategoryRepository.Read();
+        ProductTypeRepository productTypeRepository = new(_httpContextAccessor);
+        productTypeModels = productTypeRepository.Read();
+        ProductRepository productRepository = new(_httpContextAccessor);
+        productModels = productRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-file-excel"></i>
+                        <a href="#" onclick="excelRecord()">Excel</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <Button id="createButton" type="button" class="btn btn-success" onclick="createRecord()">
+                        <i class="fas fa-newspaper"></i>&nbsp;CREATE
+                    </Button>&nbsp;
+                    <Button id="updateButton" type="button" class="btn btn-warning" onclick="updateRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-edit"></i>&nbsp;UPDATE
+                    </Button>&nbsp;
+                    <Button id="deleteButton" type="button" class="btn btn-danger" onclick="deleteRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-trash"></i>&nbsp;DELETE
+                    </Button>&nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetForm()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <input type="hidden" id="productKey" value="0" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierKey">Supplier</label>
+                                <select name="supplierKey" id="supplierKey" class="form-control">
+                                    @if (supplierModels.Count == 0)
+                                    {
+                                        <option value="">Please Create A New field </option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var rowSupplier in supplierModels)
+                                        {
+                                            <option value="@rowSupplier.SupplierKey">
+                                                @rowSupplier.SupplierName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productCategoryKey">Product Category</label>
+                                <select name="productCategoryKey" id="productCategoryKey" class="form-control">
+                                    @if (productCategoryModels.Count == 0)
+                                    {
+                                        <option value="">Please Create A New field </option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var rowProductCategory in productCategoryModels)
+                                        {
+                                            <option value="@rowProductCategory.ProductCategoryKey">
+                                                @rowProductCategory.ProductCategoryName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productTypeKey">Product Type</label>
+                                <select name="productTypeKey" id="productTypeKey" class="form-control">
+                                    @if (productTypeModels.Count == 0)
+                                    {
+                                        <option value="">Please Create A New field </option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var rowProductType in productTypeModels)
+                                        {
+                                            <option value="@rowProductType.ProductTypeKey">
+                                                @rowProductType.ProductTypeName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productName">Name</label>
+                                <input type="text" id="productName" class="form-control" value=" " maxlength="128" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productDescription">Description</label>
+                                <input type="text" id="productDescription" class="form-control" value=" "
+                                    maxlength="128" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productQuantityPerUnit">Quantity Per Unit</label>
+                                <input type="text" id="productQuantityPerUnit" class="form-control" value=" "
+                                    maxlength="128" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productCostPrice">Cost Price</label>
+                                <input type="number" step="0.01" id="productCostPrice" class="form-control" value="0"
+                                    maxlength="122" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productSellingPrice">Selling Price</label>
+                                <input type="number" step="0.01" id="productSellingPrice" class="form-control" value="0"
+                                    maxlength="122" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productUnitsInStock">Units In Stock</label>
+                                <input type="number" step="0.01" id="productUnitsInStock" class="form-control" value="0"
+                                    maxlength="122" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productUnitsOnOrder">Units On Order</label>
+                                <input type="number" step="0.01" id="productUnitsOnOrder" class="form-control" value="0"
+                                    maxlength="122" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productReOrderLevel">Re Order Level</label>
+                                <input type="number" step="0.01" id="productReOrderLevel" class="form-control" value="0"
+                                    maxlength="122" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <label for="search">Search</label>
+            </div>
+            <div class="card-body">
+                <input name="search" id="search" class="form-control" placeholder="Please Enter Name  Or Other Here"
+                    maxlength="64" style="width: 350px!important;" />
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-info" onclick="searchRecord()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                    <i class="fas fa-power-off"></i> Reset
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th style="width: 230px">Process</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in productModels)
+                            {
+                                <tr id='product-@row.ProductKey'>
+                                    <td>
+                                        @row.SupplierName
+                                    </td>
+                                    <td>
+                                        @row.ProductCategoryName
+                                    </td>
+                                    <td>
+                                        @row.ProductTypeName
+                                    </td>
+                                    <td>@row.ProductName</td>
+                                    <td>@row.ProductDescription</td>
+                                    <td style="text-align: center">
+                                        <Button type="button" class="btn btn-warning" onclick="viewRecord(@row.ProductKey)">
+                                            <i class="fas fa-edit"></i>&nbsp;VIEW
+                                        </Button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (productModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="15" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var supplierModels = @Json.Serialize(supplierModels);
+    var productCategoryModels = @Json.Serialize(productCategoryModels);
+    var productTypeModels = @Json.Serialize(productTypeModels);
+</script>
+<script>
+    var $productKey = $("#productKey");
+    var $supplierKey = $("#supplierKey");
+    var $productCategoryKey = $("#productCategoryKey");
+    var $productTypeKey = $("#productTypeKey");
+    var $productName = $("#productName");
+    var $productDescription = $("#productDescription");
+    var $productQuantityPerUnit = $("#productQuantityPerUnit");
+    var $productCostPrice = $("#productCostPrice");
+    var $productSellingPrice = $("#productSellingPrice");
+    var $productUnitsInStock = $("#productUnitsInStock");
+    var $productUnitsOnOrder = $("#productUnitsOnOrder");
+    var $productReOrderLevel = $("#productReOrderLevel");
+    function resetForm() {
+        emptyForm();
+        $("#createButton").removeAttr("disabled");
+        $("#updateButton").attr("disabled", "disabled");
+        $("#deleteButton").attr("disabled", "disabled");
+    }
+    function emptyForm() {
+        $productKey = $("#productKey").val('');
+        $supplierKey = $("#supplierKey").val('');
+        $productCategoryKey = $("#productCategoryKey").val('');
+        $productTypeKey = $("#productTypeKey").val('');
+        $productName = $("#productName").val('');
+        $productDescription = $("#productDescription").val('');
+        $productQuantityPerUnit = $("#productQuantityPerUnit").val('');
+        $productCostPrice = $("#productCostPrice").val('');
+        $productSellingPrice = $("#productSellingPrice").val('');
+        $productUnitsInStock = $("#productUnitsInStock").val('');
+        $productUnitsOnOrder = $("#productUnitsOnOrder").val('');
+        $productReOrderLevel = $("#productReOrderLevel").val('');
+    }
+    function resetRecord() {
+        readRecord();
+        emptyForm();
+        $("#search").val("");
+    }
+    function emptyTemplate() {
+        return "<tr><td colspan='6'>It's lonely here</td></tr>";
+    }
+    function emptyDetailTemplate() {
+        return "<tr><td colspan='15'>It's lonely here</td></tr>";
+    }
+    function template(productKey, supplierName, productCategoryName, productTypeName, productName, productDescription) {
+
+        return "" +
+            "<tr id='product-" + productKey + "'>" +
+            "<td>" + supplierName + "</td>" +
+            "<td>" + productCategoryName + "</td>" +
+            "<td>" + productTypeName + "</td>" +
+            "<td>" + productName + "</td>" +
+            "<td>" + productDescription + "</td>" +
+            "<td style='text-align: center'><div class='btn-group'>" +
+            "<Button type='button' class='btn btn-warning' onclick='viewRecord(" + productKey + ")'>" +
+            "<i class='fas fa-search'></i> View" +
+            "</Button>" +
+            "</div></td>" +
+            "</tr>";
+    }
+    function createRecord() {
+        console.log("weird:["+$supplierKey.val()+"]");
+        if (!$supplierKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $supplierKey.addClass("is-invalid").trigger('focus');
+        }
+        else if (!$productCategoryKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productCategoryKey.addClass("is-invalid").trigger('focus');
+        }
+        else if (!$productTypeKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productTypeKey.addClass("is-invalid").trigger('focus');
+        }
+        else if ($productName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $supplierKey.removeClass("is-invalid");
+            $productCategoryKey.removeClass("is-invalid");
+            $productTypeKey.removeClass("is-invalid");
+            $productName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/product",
+                async: false,
+                data: {
+                    mode: 'create',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    supplierKey: $supplierKey.val(),
+                    productCategoryKey: $productCategoryKey.val(),
+                    productTypeKey: $productTypeKey.val(),
+                    productName: $productName.val(),
+                    productDescription: $productDescription.val(),
+                    productQuantityPerUnit: $productQuantityPerUnit.val(),
+                    productCostPrice: $productCostPrice.val(),
+                    productSellingPrice: $productSellingPrice.val(),
+                    productUnitsInStock: $productUnitsInStock.val(),
+                    productUnitsOnOrder: $productUnitsOnOrder.val(),
+                    productReOrderLevel: $productReOrderLevel.val(),
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading ..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    const lastInsertKey = data.lastInsertKey;
+                    readRecord();
+                    $productKey.val(lastInsertKey);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@SharedUtil.RecordCreated',
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    });
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else  {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function readRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/product",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "read",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+            }, statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.productKey, row.supplierName, row.productCategoryName, row.productTypeName, row.productName, row.productDescription);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function searchRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/product",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "search",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                search: $("#search").val()
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.productKey, row.supplierName, row.productCategoryName, row.productTypeName, row.productName, row.productDescription);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    }else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/product");
+    }
+    function viewRecord(productKey) {
+        $.ajax({
+            type: "post",
+            url: "api/application/product",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "single",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                productKey: productKey
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.dataSingle === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    $productKey.val(data.dataSingle.productKey);
+                    $supplierKey.val(data.dataSingle.supplierKey);
+                    $productCategoryKey.val(data.dataSingle.productCategoryKey);
+                    $productTypeKey.val(data.dataSingle.productTypeKey);
+                    $productName.val(data.dataSingle.productName);
+                    $productDescription.val(data.dataSingle.productDescription);
+                    $productQuantityPerUnit.val(data.dataSingle.productQuantityPerUnit);
+                    $productCostPrice.val(data.dataSingle.productCostPrice);
+                    $productSellingPrice.val(data.dataSingle.productSellingPrice);
+                    $productUnitsInStock.val(data.dataSingle.productUnitsInStock);
+                    $productUnitsOnOrder.val(data.dataSingle.productUnitsOnOrder);
+                    $productReOrderLevel.val(data.dataSingle.productReOrderLevel);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/product");
+    }
+    function updateRecord() {
+        if (!$supplierKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $supplierKey.addClass("is-invalid").trigger('focus');
+        }
+        else if (!$productCategoryKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productCategoryKey.addClass("is-invalid").trigger('focus');
+        }
+        else if (!$productTypeKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productTypeKey.addClass("is-invalid").trigger('focus');
+        }
+        else if ($productName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $productName.addClass("is-invalid").trigger('focus');
+        }
+        else {
+            $supplierKey.removeClass("is-invalid");
+            $productCategoryKey.removeClass("is-invalid");
+            $productTypeKey.removeClass("is-invalid");
+            $productName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/product",
+                async: false,
+                data: {
+                    mode: 'update',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    productKey: $productKey.val(),
+                    supplierKey: $supplierKey.val(),
+                    productCategoryKey: $productCategoryKey.val(),
+                    productTypeKey: $productTypeKey.val(),
+                    productName: $productName.val(),
+                    productDescription: $productDescription.val(),
+                    productQuantityPerUnit: $productQuantityPerUnit.val(),
+                    productCostPrice: $productCostPrice.val(),
+                    productSellingPrice: $productSellingPrice.val(),
+                    productUnitsInStock: $productUnitsInStock.val(),
+                    productUnitsOnOrder: $productUnitsOnOrder.val(),
+                    productReOrderLevel: $productReOrderLevel.val(),
+                }, statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire("System", "@SharedUtil.RecordUpdated", 'success');
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else  {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function deleteRecord() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: "api/application/product",
+                    async: false,
+                    data: {
+                        mode: 'delete',
+                        leafCheckKey: @navigationModel.LeafCheckKey,
+                        productKey: $("#productKey").val()
+                    }, statusCode: {
+                        500: function () {
+                            Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        }
+                    },
+                    beforeSend: function () {
+                        console.log("loading..");
+                    }
+                }).done(function (data) {
+                    if (data === void 0) { location.href = "/"; }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        $("#createButton").removeAttr("disabled");
+                        $("#updateButton").attr("disabled", "disabled");
+                        $("#deleteButton").attr("disabled", "disabled");
+                        $("#productKey").val('');
+                        $("#supplierKey").val('');
+                        $("#productCategoryKey").val('');
+                        $("#productTypeKey").val('');
+                        $("#productName").val('');
+                        $("#productDescription").val('');
+                        $("#productQuantityPerUnit").val('');
+                        $("#productCostPrice").val('');
+                        $("#productSellingPrice").val('');
+                        $("#productUnitsInStock").val('');
+                        $("#productUnitsOnOrder").val('');
+                        $("#productReOrderLevel").val('');
+                        readRecord();
+                        Swal.fire("System", "@SharedUtil.RecordDeleted", "success");
+                    } else if (status === false) {
+                        if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else if (typeof (code) === 'string') {
+                            callBackError();
+                        } else  {
+                            location.href = "/";
+                        }
+                    } else {
+                        location.href = "/";
+                    }
+                }).fail(function (xhr) {
+                    console.log(xhr.status);
+                    Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+                }).always(function () {
+                    console.log("always:complete");
+                });
+            } else if (result.dismiss === swal.DismissReason.cancel) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cancelled',
+                    text: 'Be careful before delete record'
+                })
+            }
+        });
+    }
+</script>

@@ -1,0 +1,463 @@
+﻿@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Menu
+@using RebelCmsTemplate.Models.Administrator
+@using RebelCmsTemplate.Repository.Menu
+@using RebelCmsTemplate.Repository.Administrator
+@using RebelCmsTemplate.Util
+@using RebelCmsTemplate.Enum
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<FolderModel> folderModels = new();
+    List<RoleModel> roleModels = new();
+    List<LeafModel> leafModels = new();
+    List<LeafAccessModel> leafAccessModels = new();
+    try
+    {
+        FolderRepository folderRepository = new(_httpContextAccessor);
+        folderModels = folderRepository.Read();
+        LeafRepository leafRepository = new(_httpContextAccessor);
+        leafModels = leafRepository.Read();
+        RoleRepository roleRepository = new(_httpContextAccessor);
+        roleModels = roleRepository.Read();
+        LeafAccessRepository leafAccessRepository = new(_httpContextAccessor);
+        leafAccessModels = leafAccessRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+<div class="container-fluid">
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <label class="control-label col-xs-2 col-sm-2 col-md-2"
+                                   for="folderKey">
+                                Folder
+                            </label>
+                            <div class="col-xs-10 col-sm-10 col-md-10">
+                                <select name="folderKey" id="folderKey"
+                                        class=" form-control" style="width: 400px"
+                                        onChange="readRecord();">
+                                    <option value="">Please Choose</option>
+                                    @foreach (var rowFolder in folderModels)
+                                    {
+                                        <option value="@rowFolder.FolderKey">@rowFolder.FolderName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <label class="control-label col-xs-2 col-sm-2 col-md-2"
+                                   for="leafKey">
+                                Leaf
+                            </label>
+                            <div class="col-xs-10 col-sm-10 col-md-10">
+                                <select name="leafKey" id="leafKey"
+                                        class=" form-control" style="width: 400px"
+                                        onChange="readRecord();">
+                                    <option value="">Please Choose</option>
+                                    @foreach (var rowLeaf in leafModels)
+                                    {
+                                        <option value="@rowLeaf.LeafKey">@rowLeaf.LeafName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">&nbsp;</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="roleKey">
+                                Role
+                            </label>
+
+                            <div class="col-md-10">
+                                <select name="roleKey" id="roleKey"
+                                        class=" form-control" style="width: 400px"
+                                        onChange="readRecord();">
+                                    <option value="">Please Choose</option>
+                                    @foreach (var rowRole in roleModels)
+                                    {
+                                        <option value="@rowRole.RoleKey">@rowRole.RoleName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" name="clearSearchString"
+                                id="clearSearchString" value="Clear" class="btn btn-info"
+                                onClick="clearRecord();">
+                            Clear
+                        </button>
+                        <button type="button" name="showGrid"
+                                id="showGrid" value="ShowGrid"
+                                class="btn btn-danger" onClick="readRecord();">
+                            Read
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="float-right">
+            <button class="delete btn btn-warning" type="button"
+                    onClick="updateRecord();">
+                <i class="fa fa-lock"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="card">
+            <table class="table table-bordered table-striped table-condensed table-hover"
+                   id="tableData">
+                <thead>
+                <tr>
+                    <th class="tableHeaderWidth150px">Folder</th>
+                    <th class="tableHeaderWidth150px">Leaf</th>
+                    <th class="tableHeaderWidth150px">Role</th>
+                    <th class="tableHeaderWidth25px">
+                        <label>
+                            Create
+                            <input class="form-check-input"
+                                   type="checkbox" name="checkAllCreate"
+                                   id="checkAllCreate"
+                                   alt="Check Record"
+                                   onChange="toggleRangeChecked(this.checked,'CreateValue');">
+                        </label>
+                    </th>
+                    <th class="tableHeaderWidth25px">
+                        <label>
+                            Read
+                            <input class="form-check-input"
+                                   type="checkbox" name="checkAllRead"
+                                   id="checkAllRead"
+                                   alt="Check Read"
+                                   onChange="toggleRangeChecked(this.checked,'ReadValue');">
+                        </label>
+                    </th>
+                    <th class="tableHeaderWidth25px">
+                        <label>
+                            Update
+                            <input class="form-check-input"
+                                   type="checkbox" name="checkAllUpdate"
+                                   id="checkAllUpdate"
+                                   alt="Check All Update"
+                                   onChange="toggleRangeChecked(this.checked,'UpdateValue');">
+                        </label>
+                    </th>
+                    <th class="tableHeaderWidth25px">
+                        <label>
+                            Delete
+                            <input class="form-check-input"
+                                   type="checkbox" name="checkAllDelete"
+                                   id="checkAllDelete"
+                                   alt="Check All Delete"
+                                   onChange="toggleRangeChecked(this.checked,'DeleteValue');">
+                        </label>
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="tableBody">
+                @foreach (var row in leafAccessModels)
+                {
+                    var checkedCreateValue = row.LeafAccessCreateValue == 1 ? "checked" : "";
+                    var checkedReadValue = row.LeafAccessReadValue == 1 ? "checked" : "";
+                    var checkedUpdateValue = row.LeafAccessUpdateValue == 1 ? "checked" : "";
+                    var checkedDeleteValue = row.LeafAccessDeleteValue == 1 ? "checked" : "";
+                    <tr>
+
+                        <td class="tdNormalAlign">@row.FolderName</td>
+                        <td class="tdNormalAlign">@row.LeafName </td>
+                        <td class="tdNormalAlign">@row.RoleName</td>
+                        <td class="tdCodeAlign">
+                            <input title="value" @checkedCreateValue class="form-check-input"
+                                   type="checkbox"
+                                   name="CreateValue"
+                                   value="@row.LeafAccessCreateValue">
+                        </td>
+                        <td class="tdCodeAlign">
+                            <input title="value" @checkedReadValue class="form-check-input"
+                                   type="checkbox"
+                                   name="ReadValue"
+                                   value="@row.LeafAccessReadValue">
+
+                        </td>
+
+                        <td class="tdCodeAlign">
+                            <input title="value" @checkedUpdateValue class="form-check-input"
+                                   type="checkbox"
+                                   name="UpdateValue"
+                                   value='@row.LeafAccessUpdateValue'>
+                        </td>
+                        <td class="tdCodeAlign">
+                            <input type="hidden"
+                                   name="keyArray"
+                                   value="@row.LeafAccessKey">
+                            <input title="value" @checkedDeleteValue class="form-check-input"
+                                   type="checkbox"
+                                   name="DeleteValue"
+                                   value="@row.LeafAccessDeleteValue">
+                        </td>
+                    </tr>
+                }
+
+                @if (leafAccessModels.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7"
+                            class="noRecord">
+                            @SharedUtil.NoRecord
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--  end sini -->
+
+</div>
+</div>
+</section>
+<script>
+
+        var $folderKey = $("#folderKey");
+        var $leafKey =  $("#leafKey");
+        var $roleKey =  $("#roleKey");
+       function emptyTemplate() {
+            return "" +
+                "<tr>" +
+                "<td colspan=\"7\">It's lonely here</td>" +
+                "</tr>";
+        }
+        function template(leafAccessKey,leafName,folderName,roleName, leafAccessCreateValue, leafAccessReadValue, leafAccessUpdateValue,leafAccessDeleteValue) {
+            let checkedCreateValue = (leafAccessCreateValue===1)?"checked":"";
+            let checkedReadValue = (leafAccessReadValue===1)?"checked":"";
+            let checkedUpdateValue = (leafAccessUpdateValue===1)?"checked":"";
+            let checkedDeleteValue = (leafAccessDeleteValue===1)?"checked":"";
+            return "<tr>" +
+             "<td class='tdNormalAlign'>"+folderName+"</td>" +
+              "<td class='tdNormalAlign'>"+leafName+"</td>"+
+              "<td class='tdNormalAlign'>"+roleName+"</td>"+
+              "<td class='tdCodeAlign'>"+
+              "<input "+checkedCreateValue+" class=\"form-check-input\" type=\"checkbox\" name=\"CreateValue\" value=\""+leafAccessCreateValue+"\">"+
+              "</td>"+
+              "<td class='tdCodeAlign'>"+
+              "<input "+checkedReadValue+" class=\"form-check-input\" type=\"checkbox\" name=\"ReadValue\"  value=\""+leafAccessReadValue+"\">"
+              +"</td>"+
+              "<td class='tdCodeAlign'>"+
+              "<input "+checkedUpdateValue+" class=\"form-check-input\" type=\"checkbox\" name=\"UpdateValue\" value=\""+leafAccessUpdateValue+"\">"+
+              " </td>"+
+              "<td class='tdCodeAlign'>"+
+              "<input type=\"hidden\" name=\"keyArray\" value=\""+leafAccessKey+"\">"+
+              "<input title=\"value\" "+checkedDeleteValue+" class=\"form-check-input\" type=\"checkbox\" name=\"DeleteValue\" value=\""+leafAccessDeleteValue+"\">"+
+              "</td>" +
+              "</tr>";
+        }
+        function clearRecord() {
+           $folderKey.val('');
+           $leafKey.val('');
+            $roleKey.val('');
+            readRecord();
+        }
+        function readRecord() {
+           let row = { leafAccessKey:"",leafName:"",folderName:"",roleName:"", leafAccessCreateValue:"", leafAccessReadValue:"", leafAccessUpdateValue:"",leafAccessDeleteValue:"" };
+             let data = {};
+            data.mode = "search";
+             if($leafKey.val()>0){
+               data.leafKey = $leafKey.val();     
+            }
+            if(parseInt($folderKey.val())>0){
+               data.folderKey = $folderKey.val();     
+            }
+            if(parseInt($roleKey.val())>0){
+               data.folderKey = $roleKey.val();     
+            }
+            data.leafCheckKey = @navigationModel.LeafCheckKey;
+
+             $.ajax({
+                type: 'POST',
+                url: "api/menu/leafAccess",
+                async: false,
+                data: data, statusCode: {
+                    500: function() {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading..");
+                }}).done(function(data)  {
+                    if (data === void 0) {
+                        location.href = "/";
+                    }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        if (data.data === void 0) {
+                            $("#tableBody").html("").html(emptyTemplate());
+                        } else {
+                            if (data.data.length > 0) {
+                                let templateStringBuilder = "";
+                                for (let i = 0; i < data.data.length; i++) {
+                                    row = data.data[i];
+                                    templateStringBuilder += template(row.leafAccessKey,row.leafName,row.folderName,row.roleName, row.leafAccessCreateValue, row.leafAccessReadValue, row.leafAccessUpdateValue,row.leafAccessDeleteValue);
+                                }
+                                $("#tableBody").html("").html(templateStringBuilder);
+                            }else{
+                                $("#tableBody").html("").html(emptyTemplate());
+                            }
+                        }
+                    } else if (status === false) {
+                        if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else if (typeof (code) === 'string') {
+                            callBackError();
+                        } else {
+                            location.href = "/";
+                        }
+
+                    } else {
+                        location.href = "/";
+                    }
+              }).fail(function(xhr)  {
+                    console.log(xhr.status)
+                    Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+                }).always(function (){
+                    console.log("always:complete");    
+                });
+        }
+
+        function updateRecord() {
+            let keyArray = [];
+            let createValue = [];
+            let readValue= [];
+            let updateValue = [];
+            let deleteValue = [];
+            $('input[name="keyArray"]').each(function () {
+                keyArray.push($(this).val());
+            });
+            $('input[name="CreateValue"]').each(function () {
+                createValue.push($(this).is(':checked') ? 1: 0);
+            });
+             $('input[name="ReadValue"]').each(function () {
+                 readValue.push($(this).is(':checked') ? 1 : 0);
+            });
+             $('input[name="UpdateValue"]').each(function () {
+                 updateValue.push($(this).is(':checked') ? 1 : 0);
+            });
+             $('input[name="DeleteValue"]').each(function () {
+                 deleteValue.push($(this).is(':checked') ? 1 : 0);
+            });
+            $.ajax({
+                type: 'POST',
+                url: "api/menu/leafAccess",
+                async: false,
+               data: {
+                    mode: 'update',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    keyArray: keyArray,
+                    createValue: createValue,
+                    readValue: readValue,
+                    updateValue: updateValue,
+                    deleteValue: deleteValue
+                },
+                 statusCode: {
+                    500: function() {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("Loading..");
+                }}).done(function(data)  {
+                    if (data === void 0) {
+                        location.href = "/";
+                    }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        Swal.fire("System", " @SharedUtil.RecordUpdated", 'success')
+                   } else if (status === false) {
+                        if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else if (typeof (code) === 'string') {
+                            callBackError();
+                        } else {
+                            location.href = "/";
+                        }
+
+                    } else {
+                        location.href = "/";
+                    }
+            }).fail(function(xhr)  {
+                console.log(xhr.status)
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function (){
+                console.log("always:complete");    
+            });
+        }
+    </script>

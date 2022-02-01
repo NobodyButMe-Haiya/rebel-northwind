@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.rtl.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.rtl.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.rtl.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.rtl.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.rtl.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.rtl.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.rtl.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.rtl.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.rtl.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.rtl.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.rtl.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.rtl.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.min.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.rtl.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.rtl.css.map" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.rtl.min.css" />
+        <Content Remove="C:\Users\youtuber\.nuget\packages\bootstrap\5.1.2\contentFiles\any\any\wwwroot\css\bootstrap.rtl.min.css.map" />
+        <Content Remove="Controllers\DataTable.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ClosedXML" Version="0.95.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+        <PackageReference Include="MySql.Data" Version="8.0.27" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Database" />
+        <Folder Include="Views\Email" />
+    </ItemGroup>
+
+</Project>

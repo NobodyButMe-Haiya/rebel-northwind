@@ -1,0 +1,128 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = RebelCmsTemplate
+build_property.RootNamespace = RebelCmsTemplate
+build_property.ProjectDir = /Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate
+build_property._RazorSourceGeneratorDebug = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Error/403.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXJyb3IvNDAzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Error/404.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXJyb3IvNDA0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Error/500.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXJyb3IvNTAwLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Home/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Home/LogOut.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Mb2dPdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Home/Main.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9NYWluLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Administrator/Log.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQWRtaW5pc3RyYXRvci9Mb2cuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Administrator/Role.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQWRtaW5pc3RyYXRvci9Sb2xlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Administrator/Tenant.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQWRtaW5pc3RyYXRvci9UZW5hbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Administrator/User.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQWRtaW5pc3RyYXRvci9Vc2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Customer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vQ3VzdG9tZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Employee.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vRW1wbG95ZWUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Order.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vT3JkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Product.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vUHJvZHVjdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Shipper.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vU2hpcHBlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Application/Supplier.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvQXBwbGljYXRpb24vU3VwcGxpZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Menu/Folder.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvTWVudS9Gb2xkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Menu/FolderAccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvTWVudS9Gb2xkZXJBY2Nlc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Menu/Leaf.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvTWVudS9MZWFmLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Menu/LeafAccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvTWVudS9MZWFmQWNjZXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Setting/ProductCategory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvU2V0dGluZy9Qcm9kdWN0Q2F0ZWdvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Pages/Setting/ProductType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGFnZXMvU2V0dGluZy9Qcm9kdWN0VHlwZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-7ke29d8aq5

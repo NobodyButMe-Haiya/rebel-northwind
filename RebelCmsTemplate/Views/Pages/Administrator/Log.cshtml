@@ -1,0 +1,256 @@
+﻿@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Administrator
+@using RebelCmsTemplate.Repository.Administrator;
+@using RebelCmsTemplate.Util;
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<LogModel> logModels = new();
+    try
+    {
+        LogRepository logRepository = new(_httpContextAccessor);
+        logModels = logRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i>
+                            @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i>
+                        @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/LogOut">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">Filter</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label for="search">Searchs</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input name="search" id="search" class="form-control"
+                                placeholder="Please Enter Name  Or Other Here" maxlength="64"
+                                style="width: 350px!important;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-info" onclick="searchRecord()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    &nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Log Query</th>
+                                <th scope="col">Log Error</th>
+                                <th scope="col">TimeStamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in logModels)
+                            {
+                                <tr id="log-@row.LogKey">
+                                    <td>@row.LogUserName</td>
+                                    <td>@row.LogQuery</td>
+                                    <td>@row.LogError</td>
+                                    <td>@row.LogDateTime</td>
+                                </tr>
+                            }
+
+                            @if (logModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="7" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function resetRecord() {
+        readRecord();
+        $("#search").val("");
+    }
+    function emptyTemplate() {
+        return "" +
+            "<tr>" +
+            "<td colspan='6'>It's lonely here</td>" +
+            "</tr>";
+    }
+    function template(logKey, logUserName, logQuery, logError, logDateTime) {
+        return "" +
+            "<tr id=\"log-" + logKey + "\">" +
+            "<td>" + logUserName + "</td>" +
+            "<td>" + logQuery + "</td>" +
+            "<td>" + logError + "</td>" +
+            "<td>" + logDateTime + "</td>" +
+            "</tr>";
+    }
+    function readRecord() {
+        let row = { logKey: "", logUserId: "", logUserName: "", logQuery: "", logError: "", logDatetime: "" };
+        $.ajax({
+            type: "post",
+            url: "api/administrator/log",
+            contentType: "application/x-www-form-urlencoded",
+            async: false,
+            data: {
+                mode: "read",
+                leafCheckKey: @navigationModel.LeafCheckKey
+            },
+            beforeSend() {
+                console.log("loading ..");
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.logKey, row.logUserName, row.logQuery, row.logError, row.logDateTime);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status)
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            accessDenied();
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function searchRecord() {
+        let row = { logKey: "", logUserName: "", logQuery: "", logQueryError: "", logDatetime: "" };
+        $.ajax({
+            type: "post",
+            url: "api/administrator/log",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "search",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                search: $("#search").val()
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            },
+            beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.logKey, row.logUserName, row.logQuery, row.logError, row.logDateTime);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else {
+                    location.href = "/";
+                }
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status)
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            accessDenied();
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+</script>

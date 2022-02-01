@@ -1,0 +1,463 @@
+﻿@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Menu
+@using RebelCmsTemplate.Util;
+@using RebelCmsTemplate.Enum;
+@using Microsoft.AspNetCore.Http
+@using RebelCmsTemplate.Repository.Dashboard;
+@using System.Linq;
+@{
+    // wee been typing these before
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    var totalEmployee = 0;
+    var totalCustomer = 0;
+    var totalShipper = 0;
+    var totalSupplier = 0;
+    var totalProduct = 0;
+    double totalNew = 0;
+    double totalInvoiced = 0;
+    double totalShipped = 0;
+    double totalClosed = 0;
+
+    List<DashboardRepository.ProductStatistic> productStatistic = new();
+    var error = "";
+    List<MenuModel> menuModels = new();
+    try
+    {
+        MenuUtil menuUtil = new(_httpContextAccessor);
+        menuModels = menuUtil.GetMenu();
+        DashboardRepository dashboardRepository = new(_httpContextAccessor);
+        totalEmployee = dashboardRepository.GetTotalEmployee();
+        totalCustomer = dashboardRepository.GetTotalCustomer();
+        totalShipper = dashboardRepository.GetTotalShipper();
+        totalSupplier = dashboardRepository.GetTotalSupplier();
+        totalProduct = dashboardRepository.GetTotalProduct();
+        var dictionary = dashboardRepository.GetTotalOrder();
+        productStatistic = dashboardRepository.GetProductSales();
+        for (int index = 0; index < dictionary.Count; index++)
+        {
+            var item = dictionary.ElementAt(index);
+            System.Diagnostics.Debug.WriteLine("Counter :[" + index + "] Value:" + item.Value + "]");
+            switch (index)
+            {
+                case 0:
+                    totalNew = item.Value;
+                    break;
+                case 1:
+                    totalInvoiced = item.Value;
+                    break;
+                case 2:
+                    totalShipped = item.Value;
+                    break;
+                case 3:
+                    totalClosed = item.Value;
+                    break;
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+        error = ex.Message;
+    }
+
+}
+
+
+@if (sharedUtils.GetTenantId() == 0 || sharedUtils.GetTenantId().Equals(null))
+{
+    <script>
+    location.href = "/";
+</script>
+}
+<style>
+    #main {
+        background-color: #f2f7ff;
+        padding: 20px;
+    }
+</style>
+<div id="app">
+    <div id="sidebar" class="active">
+        <div class="sidebar-wrapper active">
+            <div class="sidebar-header">
+                <div class="d-flex justify-content-between">
+                    <div class="logo">
+                        <a href="">
+                            <img src="~/images/logo/logo.png" alt="Logo" srcset="">
+                        </a>
+                    </div>
+                    <div class="toggler">
+                        <a href="#" class="sidebar-hide d-xl-none d-block">
+                            <i class="bi bi-x bi-middle"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                <ul class="menu">
+                    @foreach (var menuModel in menuModels)
+                    {
+                        <li class="sidebar-item active has-sub ">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-grid-fill"></i>
+                                <span>@menuModel.FolderName</span>
+                            </a>
+                        </li>
+                        @if (menuModel.Details?.Count > 0)
+                        {
+                            foreach (var menuDetailModel in menuModel.Details)
+                            {
+                                <li class="sidebar-item ">
+                                    <a href="#" class='sidebar-link' onclick="route(@menuDetailModel.LeafKey)">
+                                        <i class="bi bi-stack"></i>
+                                        <span>@menuDetailModel.LeafName</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    }
+
+                </ul>
+            </div>
+            <button class="sidebar-toggler btn x">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+    </div>
+    <div id="main">
+        <header class="mb-3">
+            <a href="#" class="burger-btn d-block d-xl-none">
+                <i class="bi bi-justify fs-3"></i>
+            </a>
+        </header>
+        <div class="page-heading" id="page-content">
+
+            <h3>Some Statistics</h3>
+
+            <div class="row">
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stats-icon purple">
+                                        <i class="iconly-boldShow"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Total Employee</h6>
+                                    <h6 class="font-extrabold mb-0">@totalEmployee</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stats-icon blue">
+                                        <i class="iconly-boldProfile"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Total Customer</h6>
+                                    <h6 class="font-extrabold mb-0">@totalCustomer</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stats-icon green">
+                                        <i class="iconly-boldAdd-User"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Total Supplier</h6>
+                                    <h6 class="font-extrabold mb-0">@totalSupplier</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stats-icon red">
+                                        <i class="iconly-boldBookmark"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Total Shipper</h6>
+                                    <h6 class="font-extrabold mb-0">@totalShipper</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stats-icon red">
+                                        <i class="iconly-boldBookmark"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Total Product</h6>
+                                    <h6 class="font-extrabold mb-0">@totalProduct</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 card">
+                    <div id="chart"></div>
+                </div>
+                <div class="col-md-12 card">
+                    <div id="chartProduct"></div>
+                </div>
+            </div>
+            <section class="row">
+
+                @if (error.Length > 0)
+                {
+                    <div class="row">
+                        @error
+                    </div>
+                }
+            </section>
+        </div>
+
+        <footer>
+            <div class="footer clearfix mb-0 text-muted">
+                <div class="float-start">
+                    <p>2021 &copy; Mazer && Rebels Developer</p>
+                </div>
+                <div class="float-end">
+                    <p>
+                        Crafted with Rebels Developer And Mazer
+                        <span class="text-danger">
+                            <i class="bi bi-heart">
+                            </i>
+                        </span>
+                        by
+                        <a href="https://ahmadsaugi.com">A. Saugi</a>
+                        .
+                    </p>
+                </div>
+                <div class="row col-md-12">
+                    <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+                        <img alt="Creative Commons License" style="border-width:0"
+                            src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+                    </a>
+                    <br />This work is licensed under a
+                    <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+                        Creative Commons
+                        Attribution-NonCommercial 4.0 International License
+                    </a>
+
+                </div>
+            </div>
+        </footer>
+
+
+
+    </div>
+
+
+</div>
+<script>
+
+
+    let optionProducts = {
+        series: [
+            {
+                data: @Json.Serialize(productStatistic)
+            }
+        ],
+        legend: {
+            show: false
+        },
+        chart: {
+            height: 350,
+            type: 'treemap'
+        },
+        title: {
+            text: 'Order Analysis',
+            align: 'center'
+        },
+        colors: [
+            '#3B93A5',
+            '#F7B844',
+            '#ADD8C7',
+            '#EC3C65',
+            '#CDD7B6',
+            '#C1F666',
+            '#D43F97',
+            '#1E5D8C',
+            '#421243',
+            '#7F94B0',
+            '#EF6537',
+            '#C0ADDB'
+        ],
+        plotOptions: {
+            treemap: {
+                distributed: true,
+                enableShades: false
+            }
+        }
+    }; 
+
+    let product = new ApexCharts(document.querySelector("#chartProduct"), optionProducts);
+    product.render();
+    let options = {
+        series: [
+            {
+                data: [
+                    {
+                        x: 'New',
+                        y: @totalNew
+                    },
+                    {
+                        x: 'Invoiced',
+                        y: @totalInvoiced
+                    },
+                    {
+                        x: 'Shipped',
+                        y: @totalShipped
+                    },
+                    {
+                        x: 'Closed',
+                        y: @totalClosed
+                    }
+                ]
+            }
+        ],
+        legend: {
+            show: false
+        },
+        chart: {
+            height: 350,
+            type: 'bar'
+        },
+        title: {
+            text: 'Order Analysis',
+            align: 'center'
+        },
+        colors: [
+            '#3B93A5',
+            '#F7B844',
+            '#ADD8C7',
+            '#EC3C65',
+            '#CDD7B6',
+            '#C1F666',
+            '#D43F97',
+            '#1E5D8C',
+            '#421243',
+            '#7F94B0',
+            '#EF6537',
+            '#C0ADDB'
+        ],
+        plotOptions: {
+            treemap: {
+                distributed: true,
+                enableShades: false
+            }
+        }
+    };
+
+    let chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+    function route(leafCheckId) {
+        $.ajax({
+            type: 'POST',
+            url: "api/route",
+            async: false,
+            data: {
+                method: 'view',
+                leafCheckId: leafCheckId
+            },
+            beforeSend: function () {
+                console.log("loading");
+            }
+        }).done(function (data) {
+            // there is possibility network failure / testing not running the server ? 
+            if (data === void 0) {
+                let timerInterval = 0;
+                Swal.fire({
+                    title: 'Auto close alert!',
+                    html: 'Hamster Out Of Service .Pease Re-login.I will close in <b></b> milliseconds.',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading()
+                        const b = Swal.getHtmlContainer().querySelector('b')
+                        timerInterval = setInterval(() => {
+                            b.textContent = Swal.getTimerLeft()
+                        }, 100)
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval)
+                    }
+                }).then((result) => {
+                    /* Read more about handling dismissals below */
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        console.log('session out .. ');
+                        location.href = "/";
+                    }
+                });
+            }
+
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                // possible future history.pushState(null, data.title, data.url);
+                $("#page-content").html("").html(data.page)
+            } else if (status === false) {
+                if (parseInt(code) === parseInt(@((int) ReturnCodeEnum.ACCESS_DENIED) )) {
+                    let timerInterval = 0;
+                    Swal.fire({
+                        title: 'Auto close alert!',
+                        html: 'Session Out .Pease Re-login.I will close in <b></b> milliseconds.',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading()
+                            const b = Swal.getHtmlContainer().querySelector('b')
+                            timerInterval = setInterval(() => {
+                                b.textContent = Swal.getTimerLeft()
+                            }, 100)
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval)
+                        }
+                    }).then((result) => {
+                        /* Read more about handling dismissals below */
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            console.log('session out .. ');
+                            location.href = "/";
+                        }
+                    });
+                } else {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status)
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        });
+    }
+</script>

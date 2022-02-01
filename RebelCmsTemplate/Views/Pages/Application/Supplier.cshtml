@@ -1,0 +1,674 @@
+@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Application
+@using RebelCmsTemplate.Repository.Application
+@using RebelCmsTemplate.Util;
+@using Microsoft.AspNetCore.Http
+@{
+    SharedUtil sharedUtils = new(_httpContextAccessor);
+    List<SupplierModel> supplierModels = new();
+    try
+    {
+        SupplierRepository supplierRepository = new(_httpContextAccessor);
+        supplierModels = supplierRepository.Read();
+    }
+    catch (Exception ex)
+    {
+        sharedUtils.SetSystemException(ex);
+    }
+    var fileInfo = ViewContext.ExecutingFilePath?.Split("/");
+    var filename = fileInfo != null ? fileInfo[4] : "";
+    var name = filename.Split(".")[0];
+    var navigationModel = sharedUtils.GetNavigation(name);
+}
+<div class="page-title">
+    <div class="row">
+        <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>@navigationModel.LeafName</h3>
+        </div>
+        <div class="col-12 col-md-6 order-md-2 order-first">
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#">
+                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-file-excel"></i>
+                        <a href="#" onclick="excelRecord()">Excel</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <a href="/logout">Logout</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <Button id="createButton" type="button" class="btn btn-success" onclick="createRecord()">
+                        <i class="fas fa-newspaper"></i>&nbsp;CREATE
+                    </Button>&nbsp;
+                    <Button id="updateButton" type="button" class="btn btn-warning" onclick="updateRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-edit"></i>&nbsp;UPDATE
+                    </Button>&nbsp;
+                    <Button id="deleteButton" type="button" class="btn btn-danger" onclick="deleteRecord()"
+                        disabled="disabled">
+                        <i class="fas fa-trash"></i>&nbsp;DELETE
+                    </Button>&nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetForm()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <input type="hidden" id="supplierKey" value="0" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierName">Name</label>
+                                <input type="text" id="supplierName" class="form-control" value="" maxlength="40" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierContactName">Contact Name</label>
+                                <input type="text" id="supplierContactName" class="form-control" value=" "
+                                    maxlength="30" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierContactTitle">Contact Title</label>
+                                <input type="text" id="supplierContactTitle" class="form-control" value=" "
+                                    maxlength="30" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierAddress">Address</label>
+                                <input type="text" id="supplierAddress" class="form-control" value=" " maxlength="60" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierCity">City</label>
+                                <input type="text" id="supplierCity" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierRegion">Region</label>
+                                <input type="text" id="supplierRegion" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierPostalCode">Postal Code</label>
+                                <input type="text" id="supplierPostalCode" class="form-control" value=" "
+                                    maxlength="10" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierCountry">Country</label>
+                                <input type="text" id="supplierCountry" class="form-control" value=" " maxlength="15" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierPhone">Phone</label>
+                                <input type="text" id="supplierPhone" class="form-control" value=" " maxlength="24" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierFax">Fax</label>
+                                <input type="text" id="supplierFax" class="form-control" value=" " maxlength="24" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="supplierHomePage">Home Page</label>
+                                <input type="text" id="supplierHomePage" class="form-control" value=" " maxlength="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <label for="search">Search</label>
+            </div>
+            <div class="card-body">
+                <input name="search" id="search" class="form-control" placeholder="Please Enter Name  Or Other Here"
+                    maxlength="64" style="width: 350px!important;" />
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-info" onclick="searchRecord()">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                    <i class="fas fa-power-off"></i> Reset
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="card">
+                    <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact Name</th>
+                                <th>Contact Title</th>
+                                <th>Address</th>
+                                <th>City</th>
+                                <th style="width: 230px">Process</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            @foreach (var row in supplierModels)
+                            {
+                                <tr id='supplier-@row.SupplierKey'>
+                                    <td>@row.SupplierName</td>
+                                    <td>@row.SupplierContactName</td>
+                                    <td>@row.SupplierContactTitle</td>
+                                    <td>@row.SupplierAddress</td>
+                                    <td>@row.SupplierCity</td>
+                                    <td style="text-align: center">
+                                        <Button type="button" class="btn btn-warning"
+                                        onclick="viewRecord(@row.SupplierKey)">
+                                            <i class="fas fa-edit"></i>&nbsp;VIEW
+                                        </Button>
+                                    </td>
+                                </tr>
+                            }
+                            @if (supplierModels.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="14" class="noRecord">
+                                        @SharedUtil.NoRecord
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var $supplierKey = $("#supplierKey");
+    var $supplierName = $("#supplierName");
+    var $supplierContactName = $("#supplierContactName");
+    var $supplierContactTitle = $("#supplierContactTitle");
+    var $supplierAddress = $("#supplierAddress");
+    var $supplierCity = $("#supplierCity");
+    var $supplierRegion = $("#supplierRegion");
+    var $supplierPostalCode = $("#supplierPostalCode");
+    var $supplierCountry = $("#supplierCountry");
+    var $supplierPhone = $("#supplierPhone");
+    var $supplierFax = $("#supplierFax");
+    var $supplierHomePage = $("#supplierHomePage");
+    function emptyForm() {
+        $supplierKey.val('');
+        $supplierName.val('');
+        $supplierContactName.val('');
+        $supplierContactTitle.val('');
+        $supplierAddress.val('');
+        $supplierCity.val('');
+        $supplierRegion.val('');
+        $supplierPostalCode.val('');
+        $supplierCountry.val('');
+        $supplierPhone.val('');
+        $supplierFax.val('');
+        $supplierHomePage.val('');
+    }
+    function resetForm() {
+        emptyForm();
+
+        $("#createButton").removeAttr("disabled");
+        $("#updateButton").attr("disabled", "disabled");
+        $("#deleteButton").attr("disabled", "disabled");
+    }
+    function resetRecord() {
+        readRecord();
+        emptyForm();
+        $("#search").val("");
+    }
+    function emptyTemplate() {
+        return "<tr><td colspan='6'>It's lonely here</td></tr>";
+    }
+    function emptyDetailTemplate() {
+        return "<tr><td colspan='14'>It's lonely here</td></tr>";
+    }
+    function template(supplierKey, supplierName, supplierContactName, supplierContactTitle, supplierAddress, supplierCity) {
+        let template = "" +
+            "<tr id='supplier-" + supplierKey + "'>" +
+            "<td>" + supplierName + "</td>" +
+            "<td>" + supplierContactName + "</td>" +
+            "<td>" + supplierContactTitle + "</td>" +
+            "<td>" + supplierAddress + "</td>" +
+            "<td>" + supplierCity + "</td>" +
+            "<td style='text-align: center'><div class='btn-group'>" +
+            "<Button type='button' class='btn btn-warning' onclick='viewRecord(" + supplierKey + ")'>" +
+            "<i class='fas fa-search'></i> View" +
+            "</Button>" +
+            "</div></td>" +
+            "</tr>";
+        return template;
+    }
+    function createRecord() {
+        const $supplierName = $("#supplierName");
+        if ($supplierName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $supplierName.addClass("is-invalid").trigger('focus');
+        } else {
+            $supplierName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/supplier",
+                async: false,
+                data: {
+                    mode: 'create',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    supplierName: $supplierName.val(),
+                    supplierContactName: $supplierContactName.val(),
+                    supplierContactTitle: $supplierContactTitle.val(),
+                    supplierAddress: $supplierAddress.val(),
+                    supplierCity: $supplierCity.val(),
+                    supplierRegion: $supplierRegion.val(),
+                    supplierPostalCode: $supplierPostalCode.val(),
+                    supplierCountry: $supplierCountry.val(),
+                    supplierPhone: $supplierPhone.val(),
+                    supplierFax: $supplierFax.val(),
+                    supplierHomePage: $supplierHomePage.val(),
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading ..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    const lastInsertKey = data.lastInsertKey;
+                    $("#tableBody").prepend(template(lastInsertKey, $supplierName.val(), $supplierContactName.val(), $supplierContactTitle.val(), $supplierAddress.val(), $supplierCity.val()));
+                    $("#supplierKey").val(lastInsertKey);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@SharedUtil.RecordCreated',
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    });
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else  {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function readRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/supplier",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "read",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+            }, statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) {
+                location.href = "/";
+            }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.supplierKey, row.supplierName, row.supplierContactName, row.supplierContactTitle, row.supplierAddress, row.supplierCity);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    } else {
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function searchRecord() {
+        $.ajax({
+            type: "post",
+            url: "api/application/supplier",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "search",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                search: $("#search").val()
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.data === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    if (data.data.length > 0) {
+                        let templateStringBuilder = "";
+                        for (let i = 0; i < data.data.length; i++) {
+                            let row = data.data[i];
+                            templateStringBuilder += template(row.supplierKey, row.supplierName, row.supplierContactName, row.supplierContactTitle, row.supplierAddress, row.supplierCity);
+                        }
+                        $("#tableBody").html("").html(templateStringBuilder);
+                    }else{
+                        $("#tableBody").html("").html(emptyTemplate());
+                    }
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/supplier");
+    }
+    function viewRecord(supplierKey) {
+        $.ajax({
+            type: "post",
+            url: "api/application/supplier",
+            async: false,
+            contentType: "application/x-www-form-urlencoded",
+            data: {
+                mode: "single",
+                leafCheckKey: @navigationModel.LeafCheckKey,
+                supplierKey: supplierKey
+            },
+            statusCode: {
+                500: function () {
+                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                    accessDenied();
+                }
+            }, beforeSend() {
+                console.log("loading ..");
+            }
+        }).done(function (data) {
+            if (data === void 0) { location.href = "/"; }
+            let status = data.status;
+            let code = data.code;
+            if (status) {
+                if (data.dataSingle === void 0) {
+                    $("#tableBody").html("").html(emptyTemplate());
+                } else {
+                    $supplierKey.val(data.dataSingle.supplierKey);
+                    $supplierName.val(data.dataSingle.supplierName);
+                    $supplierContactName.val(data.dataSingle.supplierContactName);
+                    $supplierContactTitle.val(data.dataSingle.supplierContactTitle);
+                    $supplierAddress.val(data.dataSingle.supplierAddress);
+                    $supplierCity.val(data.dataSingle.supplierCity);
+                    $supplierRegion.val(data.dataSingle.supplierRegion);
+                    $supplierPostalCode.val(data.dataSingle.supplierPostalCode);
+                    $supplierCountry.val(data.dataSingle.supplierCountry);
+                    $supplierPhone.val(data.dataSingle.supplierPhone);
+                    $supplierFax.val(data.dataSingle.supplierFax);
+                    $supplierHomePage.val(data.dataSingle.supplierHomePage);
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }
+            } else if (status === false) {
+                if (parseInt(code) === accessDeniedCode) {
+                    accessDenied();
+                } else if (typeof (code) === 'string') {
+                    callBackError();
+                } else  {
+                    location.href = "/";
+                }
+            } else {
+                location.href = "/";
+            }
+        }).fail(function (xhr) {
+            console.log(xhr.status);
+            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+        }).always(function () {
+            console.log("always:complete");
+        });
+    }
+    function excelRecord() {
+        window.open("api/application/supplier");
+    }
+    function updateRecord() {
+        const $supplierName = $("#supplierName");
+        if ($supplierName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $supplierName.addClass("is-invalid").trigger('focus');
+        } else {
+            $supplierName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/application/supplier",
+                async: false,
+                data: {
+                    mode: 'update',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    supplierKey: $supplierKey.val(),
+                    supplierName: $supplierName.val(),
+                    supplierContactName: $supplierContactName.val(),
+                    supplierContactTitle: $supplierContactTitle.val(),
+                    supplierAddress: $supplierAddress.val(),
+                    supplierCity: $supplierCity.val(),
+                    supplierRegion: $supplierRegion.val(),
+                    supplierPostalCode: $supplierPostalCode.val(),
+                    supplierCountry: $supplierCountry.val(),
+                    supplierPhone: $supplierPhone.val(),
+                    supplierFax: $supplierFax.val(),
+                    supplierHomePage: $supplierHomePage.val(),
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading..");
+                }
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    $("#createButton").attr("disabled", "disabled");
+                    $("#updateButton").removeAttr("disabled");
+                    $("#deleteButton").removeAttr("disabled");
+                    Swal.fire("System", "@SharedUtil.RecordUpdated", 'success');
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else  {
+                        location.href = "/";
+                    }
+                } else {
+                    location.href = "/";
+                }
+            }).fail(function (xhr) {
+                console.log(xhr.status);
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
+    }
+    function deleteRecord() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: "api/application/supplier",
+                    async: false,
+                    data: {
+                        mode: 'delete',
+                        leafCheckKey: @navigationModel.LeafCheckKey,
+                        supplierKey: $("#supplierKey").val()
+                    }, statusCode: {
+                        500: function () {
+                            Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        }
+                    },
+                    beforeSend: function () {
+                        console.log("loading..");
+                    }
+                }).done(function (data) {
+                    if (data === void 0) { location.href = "/"; }
+                    let status = data.status;
+                    let code = data.code;
+                    if (status) {
+                        $("#createButton").removeAttr("disabled");
+                        $("#updateButton").attr("disabled", "disabled");
+                        $("#deleteButton").attr("disabled", "disabled");
+                        emptyForm();
+                        readRecord();
+                        Swal.fire("System", "@SharedUtil.RecordDeleted", "success");
+                    } else if (status === false) {
+                        if (parseInt(code) === accessDeniedCode) {
+                            accessDenied();
+                        } else if (typeof (code) === 'string') {
+                            callBackError();
+                        } else  {
+                            location.href = "/";
+                        }
+                    } else {
+                        location.href = "/";
+                    }
+                }).fail(function (xhr) {
+                    console.log(xhr.status);
+                    Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+                }).always(function () {
+                    console.log("always:complete");
+                });
+            } else if (result.dismiss === swal.DismissReason.cancel) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cancelled',
+                    text: 'Be careful before delete record'
+                })
+            }
+        });
+    }
+</script>
