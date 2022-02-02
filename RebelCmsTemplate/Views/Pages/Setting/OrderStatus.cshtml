@@ -1,15 +1,15 @@
-﻿@inject IHttpContextAccessor _httpContextAccessor
-@using RebelCmsTemplate.Models.Menu
-@using RebelCmsTemplate.Repository.Menu
+@inject IHttpContextAccessor _httpContextAccessor
+@using RebelCmsTemplate.Models.Setting
+@using RebelCmsTemplate.Repository.Setting
 @using RebelCmsTemplate.Util
 @using Microsoft.AspNetCore.Http
 @{
     SharedUtil sharedUtils = new(_httpContextAccessor);
-    List<FolderModel> folderModels = new();
+    List<OrderStatusModel> orderStatusModels = new();
     try
     {
-        FolderRepository folderRepository = new(_httpContextAccessor);
-        folderModels = folderRepository.Read();
+        OrderStatusRepository orderStatusRepository = new(_httpContextAccessor);
+        orderStatusModels = orderStatusRepository.Read();
     }
     catch (Exception ex)
     {
@@ -25,17 +25,20 @@
     <div class="row">
         <div class="col-12 col-md-6 order-md-1 order-last">
             <h3>@navigationModel.LeafName</h3>
+
         </div>
         <div class="col-12 col-md-6 order-md-2 order-first">
             <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="#">
-                            <i class="@navigationModel.FolderIcon"></i> @navigationModel.FolderName
+                            <i class="@navigationModel.FolderIcon"></i>
+                            @navigationModel.FolderName
                         </a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        <i class="@navigationModel.LeafIcon"></i> @navigationModel.LeafName
+                        <i class="@navigationModel.LeafIcon"></i>
+                        @navigationModel.LeafName
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
                         <i class="fas fa-sign-out-alt"></i>
@@ -48,36 +51,36 @@
 </div>
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <form class="form-horizontal">
-                <div class="card card-primary">
-                    <div class="card-header">Filter</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <div class="col-md-2">
-                                <label for="search">Search</label>
-                            </div>
-                            <div class="col-md-10">
-                                <input name="search" id="search" class="form-control"
-                                    placeholder="Please Enter Name  Or Other Here" maxlength="64"
-                                    style="width: 350px!important;" />
-                            </div>
+        <form class="form-horizontal">
+            <div class="card card-primary">
+                <div class="card-header">Filter</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label for="search">Search</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input name="search" id="search" class="form-control"
+                                placeholder="Please Enter Name  Or Other Here" maxlength="64"
+                                style="width: 350px!important;" />
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <button type="button" class="btn btn-info" onclick="searchRecord()">
-                            <i class="fas fa-filter"></i> Filter
-                        </button>
-                        &nbsp;
-                        <button type="button" class="btn btn-warning" onclick="resetRecord()">
-                            <i class="fas fa-power-off"></i> Reset
-                        </button>
-                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-info" onclick="searchRecord()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    &nbsp;
+                    <button type="button" class="btn btn-warning" onclick="resetRecord()">
+                        <i class="fas fa-power-off"></i> Reset
+                    </button>
                 </div>
-            </form>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">&nbsp;</div>
+            </div>
+        </form>
+        <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="card">
                     <table class="table table-bordered table-striped table-condensed table-hover" id="tableData">
@@ -85,78 +88,50 @@
                             <tr>
                                 <td>
                                     <label>
-                                        <input type="number" name="folderSeq[]" id="folderSeq" class="form-control"
-                                            maxlength="4" />
-                                    </label>
-                                </td>
-                                <td>
-                                    <label>
-                                        <input type="text" name="folderName[]" id="folderName" class="form-control" />
-                                    </label>
-                                </td>
-                                <td>
-                                    <label>
-                                        <input type="text" name="folderFilename[]" id="folderFilename"
+                                        <input type="text" name="orderStatusName" id="orderStatusName"
                                             class="form-control" />
                                     </label>
                                 </td>
-                                <td>
-                                    <label>
-                                        <input type="text" name="folderIcon[]" id="folderIcon" class="form-control" />
-                                    </label>
-                                </td>
-                                <td>
+                                <td style="text-align: center">
                                     <Button type="button" class="btn btn-info" onclick="createRecord()">
-                                        <i class="fa fa-newspaper"></i>&nbsp;CREATE
+                                        <i class="fa fa-newspaper"></i>&nbsp;&nbsp;CREATE
                                     </Button>
                                 </td>
                             </tr>
                             <tr>
-                            <tr>
-                                <th scope="col">SEQ</th>
-                                <th scope="col">Folder</th>
-                                <th scope="col">Filename</th>
-                                <th scope="col">Icon</th>
-                                <th scope="col">Process</th>
+                                <th>DESCRIPTION</th>
+                                <th style="width: 250px">Process</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            @foreach (var row in folderModels)
+                            @foreach (var row in orderStatusModels)
                             {
-                                <tr id="folder-@row.FolderKey">
-                                    <td>
-                                        <input title="Sequence" type="number" class="form-control" name="folderSeq[]"
-                                        id="folderSeq-@row.FolderKey" value='@row.FolderSeq' maxlength="4" />
+                                <tr id='orderStatus-@row.OrderStatusKey'>
+                                    <td class="tdNormalAlign">
+                                        <label>
+                                            <input type="text" class="form-control" name='orderStatusName[]'
+                                            id='orderStatusName-@row.OrderStatusKey'
+                                            value='@row.OrderStatusName' />
+                                        </label>
                                     </td>
-                                    <td>
-                                        <input title="Folder Name" type="text" class="form-control" name="folderName[]"
-                                        id="folderName-@row.FolderKey" value="@row.FolderName" />
-                                    </td>
-                                    <td>
-                                        <input title="Filename" type="text" class="form-control" name="folderFilename[]"
-                                        id="folderFilename-@row.FolderKey" value="@row.FolderFilename" />
-                                    </td>
-                                    <td>
-                                        <input title="Icon" type="text" class="form-control" name="folderIcon[]"
-                                        id="folderFilename-@row.FolderIcon" value="@row.FolderIcon" />
-                                    </td>
-                                    <td>
+
+                                    <td style='text-align: center'>
                                         <div class="btn-group">
                                             <Button type="button" class="btn btn-warning"
-                                            onclick="updateRecord(@row.FolderKey)">
-                                                <i class="fas fa-edit"></i>UPDATE
+                                            onclick='updateRecord(@row.OrderStatusKey)'>
+                                                <i class="fas fa-edit"></i>&nbsp;UPDATE
                                             </Button>
-                                            &nbsp;
                                             <Button type="button" class="btn btn-danger"
-                                            onclick="deleteRecord(@row.FolderKey)">
-                                                <i class="fas fa-trash"></i>DELETE
+                                            onclick='deleteRecord(@row.OrderStatusKey)'>
+                                                <i class="fas fa-trash"></i>&nbsp;DELETE
                                             </Button>
                                         </div>
                                     </td>
+
                                 </tr>
                             }
 
-                            @if (folderModels.Count == 0)
+                            @if (orderStatusModels.Count == 0)
                             {
                                 <tr>
                                     <td colspan="7" class="noRecord">
@@ -175,8 +150,6 @@
     </div>
 </section>
 <script>
-    validateMeAlphaNumeric('folderName');
-    validateMeNumericRange('folderSeq');
     function resetRecord() {
         readRecord();
         $("#search").val("");
@@ -184,62 +157,44 @@
     function emptyTemplate() {
         return "" +
             "<tr>" +
-            "<td colspan=\"4\">It's lonely here</td>" +
+            "<td colspan='4'>It's lonely here</td>" +
             "</tr>";
     }
-    function template(folderKey, folderSeq, folderName, folderFilename, folderIcon) {
+    function template(orderStatusKey, orderStatusName) {
 
         return "" +
-            "<tr id='folder-" + folderKey + "'>" +
+            "<tr id='orderStatus-" + orderStatusKey + "'>" +
             "<td>     " +
             "<label>" +
-            "<input type='number' class='form-control' name='folderSeq' id='folderSeq-" + folderKey + "' value='" + folderSeq + "' maxlength='4' />" +
-            "</label>" +
-            "</td>" +
-            "<td>     " +
-            "<label>" +
-            "<input type='text' class='form-control' name='folderName[]' id='folderName-" + folderKey + "' value='" + folderName + "' />" +
-            "</label>" +
-            "</td>" +
-            "<td>     " +
-            "<label>" +
-            "<input type='text' class='form-control' name='folderFilename[]' id='folderFilename-" + folderKey + "' value='" + folderFilename + "' />" +
-            "</label>" +
-            "</td>" +
-            "<td>     " +
-            "<label>" +
-            "<input type='text' class='form-control' name='folderIcon[]' id='folderIcon-" + folderKey + "' value='" + folderIcon + "' />" +
+            "<input type='text' class='form-control' id='orderStatusName-" + orderStatusKey + "' value='" + orderStatusName + "' />" +
             "</label>" +
             "</td>" +
             "<td style='text-align: center'><div class='btn-group'>" +
-            "<Button type='button' class='btn btn-warning' onclick='updateRecord(" + folderKey + ")'>" +
+            "<Button type='button' class='btn btn-warning' onclick='updateRecord(" + orderStatusKey + ")'>" +
             "<i class='fas fa-edit'></i> UPDATE" +
             "</Button>" +
             "&nbsp;" +
-            "<Button type='button' class='btn btn-danger' onclick='deleteRecord(" + folderKey + ")'>" +
+            "<Button type='button' class='btn btn-danger' onclick='deleteRecord(" + orderStatusKey + ")'>" +
             "<i class='fas fa-trash'></i> DELETE" +
             "</Button>" +
             "</div></td>" +
-            "</tr>" +
-            "";
+            "</tr>";
     }
     function createRecord() {
-        const $folderName = $("#folderName");
-        const $folderSeq = $("#folderSeq");
-        const $folderFilename = $("#folderFilename");
-        const $folderIcon = $("#folderIcon");
-        if ($folderName.val().length > 0 && $folderSeq.val() > 0) {
+        const $orderStatusName = $("#orderStatusName");
+        if ($orderStatusName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $orderStatusName.addClass("is-invalid").trigger('focus');
+        } else {
+            $orderStatusName.removeClass("is-invalid");
             $.ajax({
                 type: 'POST',
-                url: "api/menu/folder",
+                url: "api/setting/orderStatus",
                 async: false,
                 data: {
                     mode: 'create',
                     leafCheckKey: @navigationModel.LeafCheckKey,
-                    folderName: $folderName.val(),
-                    folderFilename: $folderFilename.val(),
-                    folderSeq: $folderSeq.val(),
-                    folderIcon: $folderIcon.val()
+                    orderStatusName: $orderStatusName.val()
                 },
                 statusCode: {
                     500: function () {
@@ -248,7 +203,7 @@
                     }
                 },
                 beforeSend: function () {
-                    console.log("loading .. ");
+                    console.log("loading ..");
                 }
             }).done(function (data) {
                 if (data === void 0) {
@@ -258,26 +213,22 @@
                 let code = data.code;
                 if (status) {
                     const lastInsertKey = data.lastInsertKey;
-                    $("#tableBody").prepend(template(lastInsertKey, $folderSeq.val(), $folderName.val(), $folderFilename.val(), $folderIcon.val()));
+                    $("#tableBody").prepend(template(lastInsertKey, $orderStatusName.val()));
                     Swal.fire({
                         title: 'Success!',
                         text: '@SharedUtil.RecordCreated',
                         icon: 'success',
                         confirmButtonText: 'Cool'
                     });
-                    $folderSeq.val('');
-                    $folderName.val('');
-                    $folderFilename.val('');
-                    $folderIcon.val('');
+                    $orderStatusName.val('');
                 } else if (status === false) {
                     if (parseInt(code) === accessDeniedCode) {
                         accessDenied();
                     } else if (typeof (code) === 'string') {
                         callBackError();
-                    } else {
+                    } else  {
                         location.href = "/";
                     }
-
                 } else {
                     location.href = "/";
                 }
@@ -287,16 +238,12 @@
             }).always(function () {
                 console.log("always:complete");
             });
-        } else {
-            Swal.fire("System", "Please enter all field required .mate", "error");
         }
     }
     function readRecord() {
-        // fake model initializer
-        let row = { folderKey: "", folderSeq: "", folderName: "", folderFilename: "", folderIcon: "" };
         $.ajax({
             type: "post",
-            url: "api/menu/folder",
+            url: "api/setting/orderStatus",
             async: false,
             contentType: "application/x-www-form-urlencoded",
             data: {
@@ -310,7 +257,7 @@
                 }
             },
             beforeSend() {
-                console.log("loading .. ");
+                console.log("loading ..");
             }
         }).done(function (data) {
             if (data === void 0) {
@@ -325,8 +272,8 @@
                     if (data.data.length > 0) {
                         let templateStringBuilder = "";
                         for (let i = 0; i < data.data.length; i++) {
-                            row = data.data[i];
-                            templateStringBuilder += template(row.folderKey, row.folderSeq, row.folderName, row.folderFilename, row.folderIcon);
+                            const row = data.data[i];
+                            templateStringBuilder += template(row.orderStatusKey, row.orderStatusName);
                         }
                         $("#tableBody").html("").html(templateStringBuilder);
                     } else {
@@ -338,10 +285,9 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else {
+                } else  {
                     location.href = "/";
                 }
-
             } else {
                 location.href = "/";
             }
@@ -352,13 +298,10 @@
             console.log("always:complete");
         });
     }
-
     function searchRecord() {
-        // fake model initializer
-        let row = { folderKey: "", folderSeq: "", folderName: "", folderFilename: "", folderIcon: "" };
         $.ajax({
             type: "post",
-            url: "api/menu/folder",
+            url: "api/setting/orderStatus",
             async: false,
             contentType: "application/x-www-form-urlencoded",
             data: {
@@ -382,20 +325,18 @@
             let status = data.status;
             let code = data.code;
             if (status) {
-                console.log("1.true");
                 if (data.data === void 0) {
-                    console.log("data" + data.data);
                     $("#tableBody").html("").html(emptyTemplate());
                 } else {
-                    console.log("2,ada but");
                     if (data.data.length > 0) {
                         let templateStringBuilder = "";
                         for (let i = 0; i < data.data.length; i++) {
-                            row = data.data[i];
-                            templateStringBuilder += template(row.folderKey, row.folderSeq, row.folderName, row.folderFilename, row.folderIcon);
+                            const row = data.data[i];
+                            templateStringBuilder += template(row.orderStatusKey, row.orderStatusName);
                         }
-                        console.log("[" + templateStringBuilder + "]");
                         $("#tableBody").html("").html(templateStringBuilder);
+                    }else{
+                        $("#tableBody").html("").html(emptyTemplate());
                     }
                 }
             } else if (status === false) {
@@ -403,10 +344,9 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else {
+                } else  {
                     location.href = "/";
                 }
-
             } else {
                 location.href = "/";
             }
@@ -417,56 +357,60 @@
             console.log("always:complete");
         });
     }
-    function updateRecord(folderKey) {
-        $.ajax({
-            type: 'POST',
-            url: "api/menu/folder",
-            async: false,
-            data: {
-                mode: 'update',
-                leafCheckKey: @navigationModel.LeafCheckKey,
-                folderKey: folderKey,
-                folderName: $("#folderName-" + folderKey).val(),
-                folderFilename: $("#folderFilename-" + folderKey).val(),
-                folderSeq: $("#folderSeq-" + folderKey).val()
-            },
-            statusCode: {
-                500: function () {
-                    Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
-                    accessDenied();
+    function updateRecord(orderStatusKey) {
+        let $orderStatusName = $("#orderStatusName-" + orderStatusKey);
+        if ($orderStatusName.val().length === 0) {
+            Swal.fire("System Error", "Please Enter all the form", "error");
+            $orderStatusName.addClass("is-invalid").trigger('focus');
+        } else {
+            $orderStatusName.removeClass("is-invalid");
+            $.ajax({
+                type: 'POST',
+                url: "api/setting/orderStatus",
+                async: false,
+                data: {
+                    mode: 'update',
+                    leafCheckKey: @navigationModel.LeafCheckKey,
+                    orderStatusKey: orderStatusKey,
+                    orderStatusName: $orderStatusName.val()
+                },
+                statusCode: {
+                    500: function () {
+                        Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
+                        accessDenied();
+                    }
+                },
+                beforeSend: function () {
+                    console.log("loading ..");
                 }
-            },
-            beforeSend: function () {
-                console.log("Loading..");
-            }
-        }).done(function (data) {
-            if (data === void 0) {
-                location.href = "/";
-            }
-            let status = data.status;
-            let code = data.code;
-            if (status) {
-                Swal.fire("System", " @SharedUtil.RecordUpdated", 'success')
-            } else if (status === false) {
-                if (parseInt(code) === accessDeniedCode) {
-                    accessDenied();
-                } else if (typeof (code) === 'string') {
-                    callBackError();
+            }).done(function (data) {
+                if (data === void 0) {
+                    location.href = "/";
+                }
+                let status = data.status;
+                let code = data.code;
+                if (status) {
+                    Swal.fire("System", "@SharedUtil.RecordUpdated", 'success')
+                } else if (status === false) {
+                    if (parseInt(code) === accessDeniedCode) {
+                        accessDenied();
+                    } else if (typeof (code) === 'string') {
+                        callBackError();
+                    } else  {
+                        location.href = "/";
+                    }
                 } else {
                     location.href = "/";
                 }
-
-            } else {
-                location.href = "/";
-            }
-        }).fail(function (xhr) {
-            console.log(xhr.status)
-            Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
-        }).always(function () {
-            console.log("always:complete");
-        });
+            }).fail(function (xhr) {
+                console.log(xhr.status)
+                Swal.fire("System", "@SharedUtil.UserErrorNotification", "error");
+            }).always(function () {
+                console.log("always:complete");
+            });
+        }
     }
-    function deleteRecord(folderKey) {
+    function deleteRecord(orderStatusKey) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -479,21 +423,21 @@
             if (result.value) {
                 $.ajax({
                     type: 'POST',
-                    url: "api/menu/folder",
+                    url: "api/setting/orderStatus",
                     async: false,
                     data: {
                         mode: 'delete',
                         leafCheckKey: @navigationModel.LeafCheckKey,
-                        folderKey: folderKey
+                        orderStatusKey: orderStatusKey
                     },
                     statusCode: {
                         500: function () {
                             Swal.fire("System Error", "@SharedUtil.UserErrorNotification", "error");
-                            accessDenied()
+                            accessDenied();
                         }
                     },
                     beforeSend: function () {
-                        console.log("loading")
+                        console.log("loading ..");
                     }
                 }).done(function (data) {
                     if (data === void 0) {
@@ -502,17 +446,16 @@
                     let status = data.status;
                     let code = data.code;
                     if (status) {
-                        $("#folder-" + folderKey).remove();
+                        $("#orderStatus-" + orderStatusKey).remove();
                         Swal.fire("System", "@SharedUtil.RecordDeleted", "success");
                     } else if (status === false) {
                         if (parseInt(code) === accessDeniedCode) {
                             accessDenied();
                         } else if (typeof (code) === 'string') {
                             callBackError();
-                        } else {
+                        } else  {
                             location.href = "/";
                         }
-
                     } else {
                         location.href = "/";
                     }
@@ -522,6 +465,7 @@
                 }).always(function () {
                     console.log("always:complete");
                 });
+
             } else if (result.dismiss === swal.DismissReason.cancel) {
                 swal(
                     'Cancelled',
@@ -530,6 +474,5 @@
                 )
             }
         });
-
     }
 </script>

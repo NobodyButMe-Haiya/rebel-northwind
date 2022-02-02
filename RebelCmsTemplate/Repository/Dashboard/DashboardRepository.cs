@@ -116,7 +116,7 @@ public class DashboardRepository
         try
         {
             connection.Open();
-            string sql = @"
+            const string sql = @"
             SELECT  COUNT(*) AS totalShipper
             FROM    shipper 
             WHERE   tenantId  = @tenantId LIMIT 1";

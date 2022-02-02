@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RebelCmsTemplate.Enum;
 using RebelCmsTemplate.Models.Application;
 using RebelCmsTemplate.Repository.Application;
+using RebelCmsTemplate.Repository.Setting;
 using RebelCmsTemplate.Util;
 
 namespace RebelCmsTemplate.Controllers.Application;
@@ -44,6 +45,7 @@ public class OrderController : Controller
         var leafCheckKey = Convert.ToInt32(Request.Form["leafCheckKey"]);
 
         OrderRepository orderRepository = new(_httpContextAccessor);
+        OrderStatusRepository orderStatusRepository = new(_httpContextAccessor);
         CustomerRepository customerRepository = new(_httpContextAccessor);
         ShipperRepository shipperRepository = new(_httpContextAccessor);
         EmployeeRepository employeeRepository = new(_httpContextAccessor);
@@ -62,6 +64,20 @@ public class OrderController : Controller
                 {
                     try
                     {
+                        uint orderStatusKey;
+                        if (!string.IsNullOrWhiteSpace(Request.Form["orderStatusKey"]))
+                        {
+                            if (!uint.TryParse(Request.Form["orderStatusKey"], out orderStatusKey))
+                            {
+                                code = ((int) ReturnCodeEnum.ACCESS_DENIED_NO_MODE).ToString();
+                                return Ok(new {status, code});
+                            }
+                        }
+                        else
+                        {
+                            orderStatusKey = orderStatusRepository.GetDefault();
+                        }
+                        
                         uint customerKey;
                         if (!string.IsNullOrWhiteSpace(Request.Form["customerKey"]))
                         {
@@ -143,6 +159,7 @@ public class OrderController : Controller
 
                         OrderModel orderModel = new()
                         {
+                            OrderStatusKey = orderStatusKey,
                             CustomerKey = customerKey,
                             ShipperKey = shipperKey,
                             EmployeeKey = employeeKey,
@@ -299,6 +316,19 @@ public class OrderController : Controller
 
                             if (orderKey > 0)
                             {
+                                uint orderStatusKey;
+                                if (!string.IsNullOrWhiteSpace(Request.Form["orderStatusKey"]))
+                                {
+                                    if (!uint.TryParse(Request.Form["orderStatusKey"], out orderStatusKey))
+                                    {
+                                        code = ((int) ReturnCodeEnum.ACCESS_DENIED_NO_MODE).ToString();
+                                        return Ok(new {status, code});
+                                    }
+                                }
+                                else
+                                {
+                                    orderStatusKey = orderStatusRepository.GetDefault();
+                                }
                                 uint customerKey;
                                 if (!string.IsNullOrWhiteSpace(Request.Form["customerKey"]))
                                 {
@@ -381,6 +411,7 @@ public class OrderController : Controller
                                 OrderModel orderModel = new()
                                 {
                                     OrderKey = orderKey,
+                                    OrderStatusKey = orderStatusKey,
                                     CustomerKey = customerKey,
                                     ShipperKey = shipperKey,
                                     EmployeeKey = employeeKey,

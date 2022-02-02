@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/RebelCmsTemplate.csproj": {}
+    "/Users/user/Projects/rebel-northwind/RebelCmsTemplate/RebelCmsTemplate.csproj": {}
   },
   "projects": {
-    "/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/RebelCmsTemplate.csproj": {
+    "/Users/user/Projects/rebel-northwind/RebelCmsTemplate/RebelCmsTemplate.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/RebelCmsTemplate.csproj",
+        "projectUniqueName": "/Users/user/Projects/rebel-northwind/RebelCmsTemplate/RebelCmsTemplate.csproj",
         "projectName": "RebelCmsTemplate",
-        "projectPath": "/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/RebelCmsTemplate.csproj",
+        "projectPath": "/Users/user/Projects/rebel-northwind/RebelCmsTemplate/RebelCmsTemplate.csproj",
         "packagesPath": "/Users/user/.nuget/packages/",
-        "outputPath": "/Users/user/Projects/Rebel-Cms-C-Sharp-Asp.net-Core-6/RebelCmsTemplate/obj/",
+        "outputPath": "/Users/user/Projects/rebel-northwind/RebelCmsTemplate/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/user/.nuget/NuGet/NuGet.Config"

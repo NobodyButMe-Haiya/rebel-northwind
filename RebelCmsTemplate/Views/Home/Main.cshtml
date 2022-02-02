@@ -33,23 +33,22 @@
         totalProduct = dashboardRepository.GetTotalProduct();
         var dictionary = dashboardRepository.GetTotalOrder();
         productStatistic = dashboardRepository.GetProductSales();
-        for (int index = 0; index < dictionary.Count; index++)
+        for (var index = 0; index < dictionary.Count; index++)
         {
-            var item = dictionary.ElementAt(index);
-            System.Diagnostics.Debug.WriteLine("Counter :[" + index + "] Value:" + item.Value + "]");
+            var (_, value) = dictionary.ElementAt(index);
             switch (index)
             {
                 case 0:
-                    totalNew = item.Value;
+                    totalNew = value;
                     break;
                 case 1:
-                    totalInvoiced = item.Value;
+                    totalInvoiced = value;
                     break;
                 case 2:
-                    totalShipped = item.Value;
+                    totalShipped = value;
                     break;
                 case 3:
-                    totalClosed = item.Value;
+                    totalClosed = value;
                     break;
             }
         }

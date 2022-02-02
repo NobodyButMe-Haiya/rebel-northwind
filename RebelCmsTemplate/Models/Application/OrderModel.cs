@@ -7,6 +7,7 @@ public partial class OrderModel
     public uint CustomerKey { get; init; }
     public uint ShipperKey { get; init; }
     public uint EmployeeKey { get; init; }
+    public uint OrderStatusKey { get; init; }
     public DateOnly? OrderDate { get; init; }
     public DateOnly? OrderRequiredDate { get; init; }
     public DateOnly? OrderShippedDate { get; init; }
@@ -26,6 +27,7 @@ public partial class OrderModel
     public string? CustomerName { get; init; }
     public string? ShipperName { get; init; }
     public string? EmployeeLastName { get; init; }
+    public string? OrderStatusName { get; init; }
 }
 
 public partial class OrderModel

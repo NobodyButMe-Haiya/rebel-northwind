@@ -26,10 +26,15 @@ public class OrderRepository
             connection.Open();
             var mySqlTransaction = connection.BeginTransaction();
             sql +=
-                @"INSERT INTO `order` (orderId,tenantId,customerId,shipperId,employeeId,orderDate,orderRequiredDate,orderShippedDate,orderFreight,orderShipName,orderShipAddress,orderShipCity,orderShipRegion,orderShipPostalCode,orderShipCountry,isDelete) VALUES (null,@tenantId,@customerId,@shipperId,@employeeId,@orderDate,@orderRequiredDate,@orderShippedDate,@orderFreight,@orderShipName,@orderShipAddress,@orderShipCity,@orderShipRegion,@orderShipPostalCode,@orderShipCountry,@isDelete);";
+                @"INSERT INTO `order` (orderId,orderStatusId,tenantId,customerId,shipperId,employeeId,orderDate,orderRequiredDate,orderShippedDate,orderFreight,orderShipName,orderShipAddress,orderShipCity,orderShipRegion,orderShipPostalCode,orderShipCountry,isDelete) VALUES (null,@orderStatusId,@tenantId,@customerId,@shipperId,@employeeId,@orderDate,@orderRequiredDate,@orderShippedDate,@orderFreight,@orderShipName,@orderShipAddress,@orderShipCity,@orderShipRegion,@orderShipPostalCode,@orderShipCountry,@isDelete);";
             MySqlCommand mySqlCommand = new(sql, connection);
             parameterModels = new List<ParameterModel>
             {
+                new()
+                {
+                    Key = "@orderStatusId",
+                    Value = orderModel.OrderStatusKey
+                },
                 new()
                 {
                     Key = "@tenantId",
@@ -137,16 +142,18 @@ public class OrderRepository
         {
             connection.Open();
             sql = @"
-                SELECT      *
-                FROM        `order` 
-	 JOIN customer 
-	 USING(customerId)
-	 JOIN shipper 
-	 USING(shipperId)
-	 JOIN employee 
-	 USING(employeeId)
-	 WHERE   `order`.isDelete != 1
-                ORDER BY    orderId DESC LIMIT 100 ";
+            SELECT      *
+            FROM        `order` 
+            JOIN        customer 
+            USING(customerId)
+            JOIN        shipper 
+            USING(shipperId)
+            JOIN        employee 
+            USING(employeeId)
+            JOIN        order_status
+            USING(orderStatusId)
+            WHERE   `order`.isDelete != 1
+            ORDER BY    orderId DESC LIMIT 100 ";
             MySqlCommand mySqlCommand = new(sql, connection);
             _sharedUtil.SetSqlSession(sql, parameterModels);
             using (var reader = mySqlCommand.ExecuteReader())
@@ -156,6 +163,7 @@ public class OrderRepository
                     orderModels.Add(new OrderModel
                     {
                         OrderKey = Convert.ToUInt32(reader["orderId"]),
+                        OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
                         CustomerName = reader["customerName"].ToString(),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
                         ShipperName = reader["shipperName"].ToString(),
@@ -216,6 +224,9 @@ public class OrderRepository
             JOIN employee 
             USING(employeeId)
 
+            JOIN   order_status
+            USING(orderStatusId)
+
             WHERE   `order`.isDelete != 1
             AND     `order`.tenantId = @tenantId
      		AND (				
@@ -252,6 +263,7 @@ public class OrderRepository
                 {
                     orderModels.Add(new OrderModel
                     {
+                        OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
                         CustomerName = reader["customerName"].ToString(),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
                         ShipperName = reader["shipperName"].ToString(),
@@ -310,6 +322,9 @@ public class OrderRepository
             JOIN employee 
             USING(employeeId)
 
+             JOIN   order_status
+            USING(orderStatusId)
+
             WHERE   `order`.isDelete    !=   1
             AND     `order`.tenantId    =   @tenantId
             AND     `order`.orderId   =   @orderId
@@ -341,6 +356,7 @@ public class OrderRepository
                     orderModel = new OrderModel
                     {
                         OrderKey = Convert.ToUInt32(reader["orderId"]),
+                        OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
                         ShipperKey = Convert.ToUInt32(reader["shipperId"]),
                         EmployeeKey = Convert.ToUInt32(reader["employeeId"]),
@@ -446,19 +462,20 @@ public class OrderRepository
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Administrator > Order ");
 
-        worksheet.Cell(1, 1).Value = "Customer";
-        worksheet.Cell(1, 2).Value = "Shipper";
-        worksheet.Cell(1, 3).Value = "Employee";
-        worksheet.Cell(1, 4).Value = "Order Date";
-        worksheet.Cell(1, 5).Value = "Required Date";
-        worksheet.Cell(1, 6).Value = "Shipped Date";
-        worksheet.Cell(1, 7).Value = "Freight";
-        worksheet.Cell(1, 8).Value = "Ship Name";
-        worksheet.Cell(1, 9).Value = "Ship Address";
-        worksheet.Cell(1, 10).Value = "Ship City";
-        worksheet.Cell(1, 11).Value = "Ship Region";
-        worksheet.Cell(1, 12).Value = "Ship Postal Code";
-        worksheet.Cell(1, 13).Value = "Ship Country";
+        worksheet.Cell(1, 1).Value = "Status";
+        worksheet.Cell(1, 2).Value = "Customer";
+        worksheet.Cell(1, 3).Value = "Shipper";
+        worksheet.Cell(1, 4).Value = "Employee";
+        worksheet.Cell(1, 5).Value = "Order Date";
+        worksheet.Cell(1, 6).Value = "Required Date";
+        worksheet.Cell(1, 7).Value = "Shipped Date";
+        worksheet.Cell(1, 8).Value = "Freight";
+        worksheet.Cell(1, 9).Value = "Ship Name";
+        worksheet.Cell(1, 10).Value = "Ship Address";
+        worksheet.Cell(1, 11).Value = "Ship City";
+        worksheet.Cell(1, 12).Value = "Ship Region";
+        worksheet.Cell(1, 13).Value = "Ship Postal Code";
+        worksheet.Cell(1, 14).Value = "Ship Country";
         var sql = _sharedUtil.GetSqlSession();
         var parameterModels = _sharedUtil.GetListSqlParameter();
         using var connection = SharedUtil.GetConnection();
@@ -480,19 +497,20 @@ public class OrderRepository
                 while (reader.Read())
                 {
                     var currentRow = counter++;
-                    worksheet.Cell(currentRow, 1).Value = reader["customerName"].ToString();
-                    worksheet.Cell(currentRow, 2).Value = reader["shipperName"].ToString();
-                    worksheet.Cell(currentRow, 3).Value = reader["employeeLastName"].ToString();
-                    worksheet.Cell(currentRow, 4).Value = reader["orderDate"].ToString();
-                    worksheet.Cell(currentRow, 5).Value = reader["orderRequiredDate"].ToString();
-                    worksheet.Cell(currentRow, 6).Value = reader["orderShippedDate"].ToString();
-                    worksheet.Cell(currentRow, 7).Value = reader["orderFreight"].ToString();
-                    worksheet.Cell(currentRow, 8).Value = reader["orderShipName"].ToString();
-                    worksheet.Cell(currentRow, 9).Value = reader["orderShipAddress"].ToString();
-                    worksheet.Cell(currentRow, 10).Value = reader["orderShipCity"].ToString();
-                    worksheet.Cell(currentRow, 11).Value = reader["orderShipRegion"].ToString();
-                    worksheet.Cell(currentRow, 12).Value = reader["orderShipPostalCode"].ToString();
-                    worksheet.Cell(currentRow, 13).Value = reader["orderShipCountry"].ToString();
+                    worksheet.Cell(currentRow, 1).Value = reader["orderStatusName"].ToString();
+                    worksheet.Cell(currentRow, 2).Value = reader["customerName"].ToString();
+                    worksheet.Cell(currentRow, 3).Value = reader["shipperName"].ToString();
+                    worksheet.Cell(currentRow, 4).Value = reader["employeeLastName"].ToString();
+                    worksheet.Cell(currentRow, 5).Value = reader["orderDate"].ToString();
+                    worksheet.Cell(currentRow, 6).Value = reader["orderRequiredDate"].ToString();
+                    worksheet.Cell(currentRow, 7).Value = reader["orderShippedDate"].ToString();
+                    worksheet.Cell(currentRow, 8).Value = reader["orderFreight"].ToString();
+                    worksheet.Cell(currentRow, 9).Value = reader["orderShipName"].ToString();
+                    worksheet.Cell(currentRow, 10).Value = reader["orderShipAddress"].ToString();
+                    worksheet.Cell(currentRow, 11).Value = reader["orderShipCity"].ToString();
+                    worksheet.Cell(currentRow, 12).Value = reader["orderShipRegion"].ToString();
+                    worksheet.Cell(currentRow, 13).Value = reader["orderShipPostalCode"].ToString();
+                    worksheet.Cell(currentRow, 14).Value = reader["orderShipCountry"].ToString();
                 }
             }
 
@@ -520,10 +538,11 @@ public class OrderRepository
             var mySqlTransaction = connection.BeginTransaction();
             sql = @"
             UPDATE  `order` 
-            SET     customerId              =   @customerId,
+            SET     orderStatusId           =   @orderStatusId,
+                    customerId              =   @customerId,
                     shipperId               =   @shipperId,
                     employeeId              =   @employeeId,
-                    orderDate        =   @orderDate,
+                    orderDate               =   @orderDate,
                     orderRequiredDate     =   @orderRequiredDate,
                     orderShippedDate      =   @orderShippedDate,
                     orderFreight          =   @orderFreight,
@@ -542,6 +561,11 @@ public class OrderRepository
                 {
                     Key = "@orderId",
                     Value = orderModel.OrderKey
+                },
+                new()
+                {
+                    Key = "@orderStatusId",
+                    Value = orderModel.OrderStatusKey
                 },
                 new()
                 {

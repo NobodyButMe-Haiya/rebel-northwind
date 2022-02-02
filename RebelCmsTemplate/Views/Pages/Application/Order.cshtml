@@ -1,6 +1,9 @@
 @inject IHttpContextAccessor _httpContextAccessor
 @using RebelCmsTemplate.Models.Application
 @using RebelCmsTemplate.Repository.Application
+
+@using RebelCmsTemplate.Models.Setting
+@using RebelCmsTemplate.Repository.Setting
 @using RebelCmsTemplate.Util;
 @using Microsoft.AspNetCore.Http
 @{
@@ -10,6 +13,7 @@
     List<ShipperModel> shipperModels = new();
     List<EmployeeModel> employeeModels = new();
     List<ProductModel> productModels = new();
+    List<OrderStatusModel> orderStatusModels = new();
     try
     {
         CustomerRepository customerRepository = new(_httpContextAccessor);
@@ -20,7 +24,8 @@
         employeeModels = employeeRepository.Read();
         ProductRepository productRepository = new(_httpContextAccessor);
         productModels = productRepository.Read();
-
+        OrderStatusRepository orderStatusRepository = new(_httpContextAccessor);
+        orderStatusModels = orderStatusRepository.Read();
         OrderRepository orderRepository = new(_httpContextAccessor);
         orderModels = orderRepository.Read();
     }
@@ -93,24 +98,26 @@
             <div class="card">
                 <table class="table table-bordered table-striped table-condensed table-hover table-fixed">
                     <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Shipper</th>
-                            <th>Employee</th>
-                            <th>Order Date</th>
-                            <th>Required Date</th>
-                            <th style="width: 230px">Process</th>
-                        </tr>
+                    <tr>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Shipper</th>
+                        <th>Employee</th>
+                        <th>Order Date</th>
+                        <th>Required Date</th>
+                        <th style="width: 230px">Process</th>
+                    </tr>
                     </thead>
                     <tbody id="tableBody">
                         @foreach (var row in orderModels)
                         {
                             <tr id='order-@row.OrderKey'>
+                                <td>@row.OrderStatusName</td>
                                 <td>@row.CustomerName</td>
                                 <td>@row.ShipperName</td>
                                 <td>@row.EmployeeLastName</td>
-                                <td>@row.OrderDate.Value.ToString("dd/MM/yyyy")</td>
-                                <td>@row.OrderRequiredDate.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@row.OrderDate?.ToString("dd/MM/yyyy")</td>
+                                <td>@row.OrderRequiredDate?.ToString("dd/MM/yyyy")</td>
                                 <td style="text-align: center">
                                     <Button type="button" class="btn btn-warning" onclick="viewRecord(@row.OrderKey)">
                                         <i class="fas fa-edit"></i>&nbsp;VIEW
@@ -175,6 +182,27 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="orderStatusKey">Status</label>
+                                    <select name="orderStatusKey" id="orderStatusKey" class="form-control">
+                                        @if (orderStatusModels.Count == 0)
+                                        {
+                                            <option value="">Please Create A New field </option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var rowOrderStatus in orderStatusModels)
+                                            {
+                                                <option value="@rowOrderStatus.OrderStatusKey"> @rowOrderStatus.OrderStatusName </option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                          
+                        </div>
+                        <div class="row">
+                              <div class="col-md-6">
+                                <div class="form-group">
                                     <label for="shipperKey">Shipper</label>
                                     <select name="shipperKey" id="shipperKey" class="form-control">
                                         @if (shipperModels.Count == 0)
@@ -191,8 +219,6 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="employeeKey">Employee</label>
@@ -212,28 +238,30 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                           
+                        </div>
+                        <div class="row">
+                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderDate">Order Date</label>
                                     <input type="date" id="orderDate" class="form-control" value="" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderRequiredDate">Required Date</label>
                                     <input type="date" id="orderRequiredDate" class="form-control" value="" />
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                         
+                        </div>
+                        <div class="row">
+                               <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShippedDate">Shipped Date</label>
                                     <input type="date" id="orderShippedDate" class="form-control" value="" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderFreight">Freight</label>
@@ -241,15 +269,16 @@
                                         maxlength="104" />
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                        
+                        </div>
+                        <div class="row">
+                                <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipName">Ship Name</label>
                                     <input type="text" id="orderShipName" class="form-control" value=" "
                                         maxlength="40" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipAddress">Ship Address</label>
@@ -257,15 +286,16 @@
                                         maxlength="60" />
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                           
+                        </div>
+                        <div class="row">
+                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipCity">Ship City</label>
                                     <input type="text" id="orderShipCity" class="form-control" value=" "
                                         maxlength="15" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipRegion">Ship Region</label>
@@ -273,15 +303,16 @@
                                         maxlength="15" />
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                         
+                        </div>
+                        <div class="row">
+                               <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipPostalCode">Ship Postal Code</label>
                                     <input type="text" id="orderShipPostalCode" class="form-control" value=" "
                                         maxlength="10" />
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="orderShipCountry">Ship Country</label>
@@ -369,9 +400,11 @@
     var shipperModels = @Json.Serialize(shipperModels);
     var employeeModels = @Json.Serialize(employeeModels);
     var productModels = @Json.Serialize(productModels);
+    var orderStatusModels = @Json.Serialize(orderStatusModels);
 </script>
 <script>
     var $orderKey = $("#orderKey");
+    var $orderStatusKey = $("#orderStatusKey");
     var $customerKey = $("#customerKey");
     var $shipperKey = $("#shipperKey");
     var $employeeKey = $("#employeeKey");
@@ -403,6 +436,7 @@
     }
     function emptyForm() {
         $orderKey.val("");
+        $orderStatusKey.val("");
         $customerKey.val("");
         $shipperKey.val("");
         $employeeKey.val("");
@@ -429,10 +463,13 @@
     function emptyDetailTemplate() {
         return "<tr><td colspan='16'>It's lonely here</td></tr>";
     }
-    function template(orderKey, customerName, shipperName, employeeLastName, orderDate, orderRequiredDate) {
-        let template = "" +
+    function template(orderKey,orderStatusName, customerName, shipperName, employeeLastName, orderDate, orderRequiredDate) {
+        
+        return "" +
             "<tr id='order-" + orderKey + "'>" +
+             "<td>" + orderStatusName + "</td>" +
             "<td>" + customerName + "</td>" +
+       
             "<td>" + shipperName + "</td>" +
             "<td>" + employeeLastName + "</td>" +
             "<td>" + orderDate + "</td>" +
@@ -443,13 +480,10 @@
             "</Button>" +
             "</div></td>" +
             "</tr>";
-        return template;
     }
     function templateDetail(orderDetailKey, orderKey, productKey, orderDetailUnitPrice, orderDetailQuantity, orderDetailDiscount) {
         let productKeyOptions = "";
-        let i = 0;
         productModels.map((row) => {
-            i++;
             const selected = (parseInt(row.productKey) === parseInt(productKey)) ? "selected" : "";
             productKeyOptions += "<option value='" + row.productKey + "' " + selected + ">" + row.productName + "</option>";
         });
@@ -490,21 +524,26 @@
         return template;
     }
     function createRecord() {
-   
+
         if (!$customerKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Customer]", "error");
             $customerKey.addClass("is-invalid").trigger('focus');
         }
+        else if (!$orderStatusKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form:[Order Status]", "error");
+            $orderStatusKey.addClass("is-invalid").trigger('focus');
+        }
         else if (!$shipperKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Shipper]", "error");
             $shipperKey.addClass("is-invalid").trigger('focus');
         }
         else if (!$employeeKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Employee]", "error");
             $employeeKey.addClass("is-invalid").trigger('focus');
         }
         else {
             $customerKey.removeClass("is-invalid");
+            $orderStatusKey.removeClass("is-invalid");
             $shipperKey.removeClass("is-invalid");
             $employeeKey.removeClass("is-invalid");
             $.ajax({
@@ -514,6 +553,7 @@
                 data: {
                     mode: 'create',
                     leafCheckKey: @navigationModel.LeafCheckKey,
+                    orderStatusKey:$orderStatusKey.val(),
                     customerKey: $customerKey.val(),
                     shipperKey: $shipperKey.val(),
                     employeeKey: $employeeKey.val(),
@@ -541,9 +581,9 @@
                 }
                 let status = data.status;
                 let code = data.code;
-                let  lastInsertKey = data.lastInsertKey;
+                let lastInsertKey = data.lastInsertKey;
                 if (status) {
-                  
+
                     $("#orderKey").val(lastInsertKey);
                     $("#createDetailButton").removeAttr("disabled");
                     $("#createButton").attr("disabled", "disabled");
@@ -560,7 +600,7 @@
                         accessDenied();
                     } else if (typeof (code) === 'string') {
                         callBackError();
-                    } else  {
+                    } else {
                         location.href = "/";
                     }
                 } else {
@@ -585,7 +625,7 @@
             Swal.fire("System Error", "Please Enter all the form :: [Product]", "error");
             $productKey.addClass("is-invalid").trigger('focus');
         }
-        else if (parseInt($orderDetailQuantity.val())==0) {
+        else if (parseInt($orderDetailQuantity.val()) === 0) {
             Swal.fire("System Error", "Please Enter all the form :: [Quantity]", "error");
             $productKey.addClass("is-invalid").trigger('focus');
         }
@@ -637,7 +677,7 @@
                         accessDenied();
                     } else if (typeof (code) === 'string') {
                         callBackError();
-                    } else  {
+                    } else {
                         location.href = "/";
                     }
                 } else {
@@ -694,7 +734,7 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else  {
+                } else {
                     location.href = "/";
                 }
             } else {
@@ -751,7 +791,7 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else  {
+                } else {
                     location.href = "/";
                 }
             } else {
@@ -795,11 +835,11 @@
                         let templateStringBuilder = "";
                         for (let i = 0; i < data.data.length; i++) {
                             let row = data.data[i];
-                            console.log("test:["+row.orderRequiredDate+"]");
-                            templateStringBuilder += template(row.orderKey, row.customerName, row.shipperName, row.employeeLastName, getLocaleDate(row.orderDate), getLocaleDate(row.orderRequiredDate));
+                            console.log("test:[" + row.orderRequiredDate + "]");
+                            templateStringBuilder += template(row.orderKey,row.orderStatusName, row.customerName, row.shipperName, row.employeeLastName, getLocaleDate(row.orderDate), getLocaleDate(row.orderRequiredDate));
                         }
                         $("#tableBody").html("").html(templateStringBuilder);
-                    }else{
+                    } else {
                         $("#tableBody").html("").html(emptyTemplate());
                     }
                 }
@@ -808,7 +848,7 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else  {
+                } else {
                     location.href = "/";
                 }
             } else {
@@ -859,6 +899,7 @@
                     $("#tableBody").html("").html(emptyTemplate());
                 } else {
                     $orderKey.val(data.dataSingle.orderKey);
+                    $orderStatusKey.val(data.dataSingle.orderStatusKey);
                     $customerKey.val(data.dataSingle.customerKey);
                     $shipperKey.val(data.dataSingle.shipperKey);
                     $employeeKey.val(data.dataSingle.employeeKey);
@@ -890,7 +931,7 @@
                     accessDenied();
                 } else if (typeof (code) === 'string') {
                     callBackError();
-                } else  {
+                } else {
                     location.href = "/";
                 }
             } else {
@@ -908,19 +949,24 @@
     }
     function updateRecord() {
         if (!$customerKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Customer]", "error");
             $customerKey.addClass("is-invalid").trigger('focus');
         }
+        else if (!$orderStatusKey.val()) {
+            Swal.fire("System Error", "Please Enter all the form:[Order Status]", "error");
+            $orderStatusKey.addClass("is-invalid").trigger('focus');
+        }
         else if (!$shipperKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Shipper]", "error");
             $shipperKey.addClass("is-invalid").trigger('focus');
         }
         else if (!$employeeKey.val()) {
-            Swal.fire("System Error", "Please Enter all the form", "error");
+            Swal.fire("System Error", "Please Enter all the form:[Employee]", "error");
             $employeeKey.addClass("is-invalid").trigger('focus');
         }
         else {
             $customerKey.removeClass("is-invalid");
+            $orderStatusKey.removeClass("is-invalid");
             $shipperKey.removeClass("is-invalid");
             $employeeKey.removeClass("is-invalid");
             $.ajax({
@@ -970,7 +1016,7 @@
                         accessDenied();
                     } else if (typeof (code) === 'string') {
                         callBackError();
-                    } else  {
+                    } else {
                         location.href = "/";
                     }
                 } else {
@@ -992,7 +1038,7 @@
         if (!$productKey.val()) {
             Swal.fire("System Error", "Please Enter all the form", "error");
             $productKey.addClass("is-invalid").trigger('focus');
-        } else if (parseInt($orderDetailQuantity.val())==0) {
+        } else if (parseInt($orderDetailQuantity.val()) == 0) {
             Swal.fire("System Error", "Please Enter all the form :: [Quantity]", "error");
             $productKey.addClass("is-invalid").trigger('focus');
         }
@@ -1034,7 +1080,7 @@
                         accessDenied();
                     } else if (typeof (code) === 'string') {
                         callBackError();
-                    } else  {
+                    } else {
                         location.href = "/";
                     }
                 } else {
@@ -1094,7 +1140,7 @@
                             accessDenied();
                         } else if (typeof (code) === 'string') {
                             callBackError();
-                        } else  {
+                        } else {
                             location.href = "/";
                         }
                     } else {
@@ -1156,7 +1202,7 @@
                             accessDenied();
                         } else if (typeof (code) === 'string') {
                             callBackError();
-                        } else  {
+                        } else {
                             location.href = "/";
                         }
                     } else {

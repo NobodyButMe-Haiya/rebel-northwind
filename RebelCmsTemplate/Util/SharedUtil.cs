@@ -281,7 +281,7 @@ public class SharedUtil
         return target.ToArray();
     }
 
-    public static string GetImageString(byte[] data, string type = "png")
+    public static string GetImageString(byte[] data, string type = "jpg")
     {
         var base64String = Convert.ToBase64String(data);
         return "data:image/" + type + ";base64," + base64String;
