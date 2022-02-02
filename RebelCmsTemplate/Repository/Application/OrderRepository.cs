@@ -163,6 +163,7 @@ public class OrderRepository
                     orderModels.Add(new OrderModel
                     {
                         OrderKey = Convert.ToUInt32(reader["orderId"]),
+                        OrderStatusName = reader["orderStatusName"].ToString(),
                         OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
                         CustomerName = reader["customerName"].ToString(),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
@@ -264,6 +265,7 @@ public class OrderRepository
                     orderModels.Add(new OrderModel
                     {
                         OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
+                        OrderStatusName = reader["orderStatusName"].ToString(),
                         CustomerName = reader["customerName"].ToString(),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
                         ShipperName = reader["shipperName"].ToString(),
@@ -356,6 +358,7 @@ public class OrderRepository
                     orderModel = new OrderModel
                     {
                         OrderKey = Convert.ToUInt32(reader["orderId"]),
+                                OrderStatusName = reader["orderStatusName"].ToString(),
                         OrderStatusKey = Convert.ToUInt32(reader["orderStatusId"]),
                         CustomerKey = Convert.ToUInt32(reader["customerId"]),
                         ShipperKey = Convert.ToUInt32(reader["shipperId"]),
