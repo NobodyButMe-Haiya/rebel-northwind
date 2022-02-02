@@ -57,6 +57,6 @@ Password : 123456
 ** you may changed it at first time. 
 
 **Youtube Preview**  
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/TgdJenkOLBY/0.jpg)](http://www.youtube.com/watch?v=xNLdBOmLr3g " Asp.net Core 6 Rebel CMS")
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/_7Ts5xsjQBM/0.jpg)](http://www.youtube.com/watch?v=_7Ts5xsjQBM " Asp.net Core 6 Rebel CMS")
 
-https://youtu.be/TgdJenkOLBY
+https://youtu.be/_7Ts5xsjQBM
