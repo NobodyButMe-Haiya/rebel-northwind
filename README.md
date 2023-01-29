@@ -60,3 +60,12 @@ Password : 123456
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/_7Ts5xsjQBM/0.jpg)](http://www.youtube.com/watch?v=_7Ts5xsjQBM " Asp.net Core 6 Rebel CMS")
 
 https://youtu.be/_7Ts5xsjQBM
+
+** for those had issue connection string mariadb to connect 
+
+error Object cannot be cast from DBNull to other types."
+
+This method assume that the "id" column's value is not null. Unfortunately, from the version 10.10, MariaDB switch the "Id" column to "Allow Null" and there are a lot of row in Collations with NULL Id. That causes the "Object cannot be cast from DBNull to other types" exception.
+Seem 10.9 is the only option for now if you wish to use the MySql.Data package and wait for a fix in MySql.Data.
+
+[stackoverflow](https://stackoverflow.com/questions/74060289/mysqlconnection-open-system-invalidcastexception-object-cannot-be-cast-from-d)
