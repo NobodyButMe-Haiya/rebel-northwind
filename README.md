@@ -69,3 +69,5 @@ This method assume that the "id" column's value is not null. Unfortunately, from
 Seem 10.9 is the only option for now if you wish to use the MySql.Data package and wait for a fix in MySql.Data.
 
 [stackoverflow](https://stackoverflow.com/questions/74060289/mysqlconnection-open-system-invalidcastexception-object-cannot-be-cast-from-d)
+
+** new base code have been updated to mysql connector instead mysql data package and will be release in a few month later
